@@ -349,14 +349,44 @@ class _NavigationExampleState extends State<NavigationExample> {
                   ),
                   SizedBox(height: 8), // Adjust the spacing as needed
                   Row(
+                    mainAxisAlignment: MainAxisAlignment
+                    .spaceBetween, // Aligns items to opposite ends
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          // Handle the first button press
+                          readMore(url);
                         },
-                        child: Text('Read More'),
+                        child: Text(
+                          'Read More'.toUpperCase(),
+                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                              color: Color(
+                                  0xFF48454F)), // Matches font size with lead, author, and date
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                              0xFFE1DBED), // Custom background color
+                          shape: const StadiumBorder(),
+                        ),
                       ),
-                      
+
+                      // Spacer for separation
+                      const SizedBox(width: 14),
+                      // Icon buttons in a row
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: const Color(0xFFE1DBED),
+                            child: IconButton(
+                              icon: const Icon(Icons.chat_bubble_outline,
+                                  color: Color(
+                                      0xFF48454F)), // More circular chat icon
+                              onPressed: () {
+                                // Add your chat event handler
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ],
@@ -370,7 +400,7 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   Widget buildFavoritesContainer(int buttonID, String source, String author,
       String title, String lead, String url, String media, String date) {
-        return Card(
+    return Card(
       child: Container(
         height: 255,
         child: Column(
@@ -418,41 +448,41 @@ class _NavigationExampleState extends State<NavigationExample> {
                   Row(
                     children: [
                       // Expanded Read More button
-                  Expanded(
-                    child: ElevatedButton(
-                        onPressed: () {
-                          readMore(url);
-                        },
-                        child: Text(
-                        'Read More'.toUpperCase(),
-                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: Color(
-                                0xFF48454F)), // Matches font size with lead, author, and date
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            const Color(0xFFE1DBED), // Custom background color
-                        shape: const StadiumBorder(),
-                      ),
-                    ),
-                  ),
-                  // Spacer for separation
-                  const SizedBox(width: 14),
-                  // Icon buttons in a row
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: const Color(0xFFE1DBED),
-                        child: IconButton(
-                          icon: const Icon(Icons.chat_bubble_outline,
-                              color:
-                                  Color(0xFF48454F)), // More circular chat icon
-                        onPressed: () {
-                          // Add your chat event handler
-                        },
+                      Expanded(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            readMore(url);
+                          },
+                          child: Text(
+                            'Read More'.toUpperCase(),
+                            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                                color: Color(
+                                    0xFF48454F)), // Matches font size with lead, author, and date
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(
+                                0xFFE1DBED), // Custom background color
+                            shape: const StadiumBorder(),
+                          ),
                         ),
                       ),
-],
+                      // Spacer for separation
+                      const SizedBox(width: 14),
+                      // Icon buttons in a row
+                      Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: const Color(0xFFE1DBED),
+                            child: IconButton(
+                              icon: const Icon(Icons.chat_bubble_outline,
+                                  color: Color(
+                                      0xFF48454F)), // More circular chat icon
+                              onPressed: () {
+                                // Add your chat event handler
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -493,14 +523,13 @@ class _NavigationExampleState extends State<NavigationExample> {
       bottomNavigationBar: NavigationBar(
         backgroundColor: const Color(0xFFE1DBED),
         onDestinationSelected: (int index) {
-          if (index==0){
+          if (index == 0) {
             // Refresh the app by pushing a new instance of the root widget
             setState(() {
               currentPageIndex = index;
             });
             _scrollDown();
-          }
-          else{
+          } else {
             setState(() {
               currentPageIndex = index;
             });
@@ -576,7 +605,7 @@ class _NavigationExampleState extends State<NavigationExample> {
           body: Column(
             children: [
               const SafeArea(
-              child: SizedBox(height: 0), // Space above the logo
+                child: SizedBox(height: 0), // Space above the logo
               ),
               Image.asset('assets/images/logo.jpg'),
               // Search bar and button
@@ -585,12 +614,13 @@ class _NavigationExampleState extends State<NavigationExample> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                  // Search bar and button
+                    // Search bar and button
                     Row(
                       children: [
                         Expanded(
                           child: TextField(
-                            controller: searchController, // Attach the controller
+                            controller:
+                                searchController, // Attach the controller
                             decoration: InputDecoration(
                               hintText: 'Search...',
                             ),
@@ -603,7 +633,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                           icon: Icon(Icons.search),
                           onPressed: () {
                             print(
-                            'Search Button Clicked: ${searchController.text}');
+                                'Search Button Clicked: ${searchController.text}');
                             makeQuery('${searchController.text}');
                           },
                         ),
@@ -613,10 +643,10 @@ class _NavigationExampleState extends State<NavigationExample> {
                 ),
               ),
               Expanded(
-                       child: ListView(
-                         children: searchContainers,
-                       ),
-                     ),
+                child: ListView(
+                  children: searchContainers,
+                ),
+              ),
             ],
           ),
         ),
@@ -868,7 +898,15 @@ class _NavigationExampleState extends State<NavigationExample> {
   void _initializeContainers() {
     // Initial containers
     containers = [
-      buildContainer(397, "WION", "WION Web Team", "Mars vanishes in rare celestial event, will come back after 2 weeks - WION", "Mars vanishes in rare celestial event, will come back after 2 weeks", "https://www.wionews.com/science/mars-vanishes-in-rare-celestial-event-will-come-back-after-2-weeks-660104", "https://cdn.wionews.com/sites/default/files/2023/11/18/393892-untitled-design-84.png", "2023-11-18T11:01:03Z"),
+      buildContainer(
+          397,
+          "WION",
+          "WION Web Team",
+          "Mars vanishes in rare celestial event, will come back after 2 weeks - WION",
+          "Mars vanishes in rare celestial event, will come back after 2 weeks",
+          "https://www.wionews.com/science/mars-vanishes-in-rare-celestial-event-will-come-back-after-2-weeks-660104",
+          "https://cdn.wionews.com/sites/default/files/2023/11/18/393892-untitled-design-84.png",
+          "2023-11-18T11:01:03Z"),
       // buildContainer(0, "", "", "", "", "", "", ""),
       // buildContainer(0, "", "", "", "", "", "", ""),
     ];
@@ -969,7 +1007,7 @@ class _NavigationExampleState extends State<NavigationExample> {
       String lead, String url, String media, String date) {
     print(ids);
     print(ids.indexOf(id));
-    if(ids.indexOf(id)==-1) {
+    if (ids.indexOf(id) == -1) {
       setState(() {
         favoritesContainers = List.from(favoritesContainers);
         var newContainer = buildFavoritesContainer(
@@ -993,15 +1031,15 @@ class _NavigationExampleState extends State<NavigationExample> {
   @override
   Widget buildWebView(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: () async {
-          Navigator.pop(context, true);
-        },
-      )),
-      body: WebViewWidget(
-        controller: controller,
-      ));
+        appBar: AppBar(
+            leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () async {
+            Navigator.pop(context, true);
+          },
+        )),
+        body: WebViewWidget(
+          controller: controller,
+        ));
   }
 }
