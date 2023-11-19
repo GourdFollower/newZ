@@ -8,7 +8,6 @@ nltk.download('stopwords')
 from init_db import *
 
 app = Flask(__name__)
-stop_words = set(stopwords.words('english'))
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -93,6 +92,4 @@ if __name__ == '__main__':
 
 if __name__ == '__main__':
     #init_db()
-    fake_init()
-    add_saved(2)
     app.run(debug=True)
