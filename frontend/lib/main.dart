@@ -45,10 +45,15 @@ class _NavigationExampleState extends State<NavigationExample> {
   String media = '';
   String date = '';
   int id = 0;
+  bool containersInitialized = false;
+
+  ScrollController _scrollController = ScrollController();
+  List<Widget> containers = [];
 
   @override
   void initState() {
     super.initState();
+    _scrollController.addListener(onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => updateNewsData());
   }
 
@@ -64,15 +69,81 @@ class _NavigationExampleState extends State<NavigationExample> {
       media = newData['urltoimage'];
       date = newData['publishedat'];
       id = newData['id'];
+      updateContainer(title);
     });
   } catch (e) {
     print('Failed to load news data: $e');
     // Handle the error state or notify the user
   }
 }
+void updateContainer(String newTitle) {
+  print("updating title");
+    setState(() {
+      title = newTitle;
+    });
+  }
+
+void onScroll() {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      // User has reached the end of the scroll, add a new container
+      setState(() {
+        containers = List.from(containers);
+        var newContainer = buildContainer();
+        containers.add(newContainer);
+      });
+    }
+  }
+
+  Widget buildContainer() {
+   updateNewsData(); 
+   print("title:");
+   print(title);
+   double containerHeight = MediaQuery.of(context).size.height -
+       (MediaQuery.of(context).padding.top + // Adjust for top padding
+           kToolbarHeight + // Adjust for app bar height
+           kBottomNavigationBarHeight + // Adjust for bottom navigation bar height
+           56);
+           //HARD CODED VALUE!!! idk where 57 comes from but it works
+
+  return Container(
+    height: containerHeight,
+    child: Container(
+      margin: const EdgeInsets.all(15.0),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F3F3),
+        borderRadius: BorderRadius.circular(15),
+        border: Border.all(
+          color: const Color(0xFF6D3C90),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(15.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch, // Ensures the container stretches to fill the width
+          children: [
+            // Title
+            Text(
+              title.isNotEmpty ? title : "Loading...",
+              style: ThemeData(useMaterial3: true).textTheme.titleLarge?.copyWith(color: Colors.black),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+            ),
+            // ... Rest of your widget code ...
+          ],
+        ),
+      ),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
+    // Initialize containers only once
+    if (!containersInitialized) {
+      _initializeContainers();
+      containersInitialized = true;
+    }
     final ThemeData theme = Theme.of(context);
     return Scaffold(
       appBar: PreferredSize(
@@ -114,44 +185,24 @@ class _NavigationExampleState extends State<NavigationExample> {
       body: <Widget>[
 
         /// Home page
-        GestureDetector(
-          onTap: () {
-            updateNewsData();
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(0.0),
-            child: Column(
-              children: <Widget>[
-                const SafeArea(child: SizedBox(height: 0)),
-                Image.asset('assets/images/logo.jpg'),
-                Expanded(
-                  child: Container(
-                    margin: const EdgeInsets.all(15.0),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF3F3F3),
-                      borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: const Color(0xFF6D3C90)),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch, // Ensures the container stretches to fill the width
-                        children: [
-                          // Title
-                          Text(
-                            title.isNotEmpty ? title : "Loading...",
-                            style: theme.textTheme.titleLarge?.copyWith(color: Colors.black),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          // ... Rest of your widget code ...
-                        ],
-                      ),
-                    ),
-                  ),
+        Scaffold(
+          body: Column(
+            children: [
+              // Fixed header
+              SafeArea(
+                child: SizedBox(height: 0), // Space above the logo
+              ),
+              Image.asset('assets/images/logo.jpg'),
+
+              // Scrollable content
+              Expanded(
+                child: ListView(
+                  controller: _scrollController,
+                  physics: PageScrollPhysics(),
+                  children: containers,
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
 
@@ -606,6 +657,14 @@ class _NavigationExampleState extends State<NavigationExample> {
         ),
       ][currentPageIndex],
     );
+  }
+  void _initializeContainers() {
+    // Initial containers
+    containers = [
+      buildContainer(),
+      // buildContainer(),
+      // buildContainer(),
+    ];
   }
 
   Widget buildToggleTile(String title, ThemeData theme) {
