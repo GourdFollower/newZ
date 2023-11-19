@@ -24,10 +24,10 @@ def init_db():
             articles_saved integer[]);")
     conn.commit()
 
-    cur.execute("INSERT INTO users (name) VALUES (%s)", ("Bread Sheeran",))
+    categories = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology']
+    cur.execute("INSERT INTO users (name, category_pref) VALUES (%s, %s)", ("Bread Sheeran", categories))
     conn.commit()
 
-    categories = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology']
     start_id = 0
     for i in categories:
         start_id = obtain_news(i, 'en', 100, start_id)

@@ -28,7 +28,7 @@ Future<Map<String, dynamic>> fetchNewsArticles() async {
 
   if (response.statusCode == 200) {
     final Map<String, dynamic> data =
-        json.decode(response.body)['news_article'];
+        json.decode(response.body);
     return data;
   } else {
     // Handle errors
@@ -91,7 +91,7 @@ void setLanguage(String language) async {
   }
 }
 
-void main() {
+void main() async {
   // Example call when user submits preferences
   log("main", level: 0);
   Map<String, bool> selectedPreferences = {
@@ -99,5 +99,6 @@ void main() {
     'sports': false
   };
   //sendPreferences(selectedPreferences);
-  //news = getNews();
+  Map<String, dynamic> news = await getNews();
+  print(news);
 }
