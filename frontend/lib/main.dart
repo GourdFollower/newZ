@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import './utils.dart';
 
+import 'package:webview_flutter/webview_flutter.dart';
+
 void main() => runApp(const NavigationBarApp());
 
 class NavigationBarApp extends StatelessWidget {
@@ -49,12 +51,14 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   ScrollController _scrollController = ScrollController();
   List<Widget> containers = [];
+  late final WebViewController controller;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => updateNewsData());
+    controller = WebViewController();
   }
 
   void updateNewsData() async {
@@ -860,5 +864,6 @@ void onScroll() {
   String year = parsedDate.year.toString();
   return month != 'May' ? "$month. $day, $year" : "$month $day, $year";
 }
+
 
 }
