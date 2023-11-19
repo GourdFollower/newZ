@@ -113,7 +113,7 @@ class _NavigationExampleState extends State<NavigationExample> {
         (MediaQuery.of(context).padding.top + // Adjust for top padding
             kToolbarHeight + // Adjust for app bar height
             kBottomNavigationBarHeight + // Adjust for bottom navigation bar height
-            56);
+            94);
     //HARD CODED VALUE!!! idk where 57 comes from but it works
     print(MediaQuery.of(context).size.height);
     print(MediaQuery.of(context).padding.top);
@@ -319,14 +319,14 @@ class _NavigationExampleState extends State<NavigationExample> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          // Handle the first button press
+                          readMore(url);
                         },
                         child: Text('Read More'),
                       ),
                       Spacer(),
                       ElevatedButton(
                         onPressed: () {
-                          // Handle the second button press
+                          // remove functionality
                         },
                         child: Text('Remove from Saved'),
                       ),

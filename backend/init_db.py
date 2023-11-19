@@ -5,7 +5,7 @@ from newsapi import NewsApiClient
 import random
 
 
-NEWS_API_KEY = '7298fe90084642578b34773b0ed70e88'
+NEWS_API_KEY = 'ef20faf5d267474d85bfdd0b53a5f7c0'
 current_category = None
 LANGUAGE = 'en'
 
@@ -33,6 +33,10 @@ def init_db():
     start_id = 0
     for i in categories:
         start_id = obtain_news(i, 'en', 100, start_id)
+
+    sql = "DELETE FROM news WHERE length(author) > 20 OR length(source) > 20 OR \
+      not(author ILIKE '% %') OR length(description) < 50;"
+    cur.execute(sql)
     
     conn.commit()
     cur.close()
@@ -210,3 +214,4 @@ def query_articles(query, size):
 def change_language():
     pass
 
+init_db()
