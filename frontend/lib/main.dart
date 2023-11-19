@@ -44,7 +44,7 @@ class _NavigationExampleState extends State<NavigationExample> {
   String url = '';
   String media = '';
   String date = '';
-  String id = '';
+  int id = 0;
 
   @override
   void initState() {
