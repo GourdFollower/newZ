@@ -76,7 +76,9 @@ class _NavigationExampleState extends State<NavigationExample> {
             padding: const EdgeInsets.all(0.0),
             child: Column(
               children: <Widget>[
-                const SizedBox(height: 0), // Space above the logo
+                const SafeArea(
+                  child: SizedBox(height: 0), // Space above the logo
+                ),
                 Image.asset('assets/images/logo.jpg'),
                 Expanded(
                   child: Container(
