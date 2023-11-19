@@ -37,8 +37,8 @@ def receive_preferences():
 @app.route('/news', methods=['GET'])
 def get_news_articles():
     article =  {"id": 1, "title": "Article 1"}
-    # articles = fetch_news_articles()
-    return jsonify(article)
+    article = return_article()
+    return article
 
 @app.route('/language', methods=['POST'])
 def update_language():
