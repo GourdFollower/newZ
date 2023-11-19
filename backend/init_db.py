@@ -23,20 +23,28 @@ def init_db():
     cur.execute("CREATE TABLE users (id serial PRIMARY KEY, name text, category_pref text[], \
         language_pref text[], country_pref text[], articles_read integer[], \
             articles_saved integer[]);")
+
+    cur.execute("INSERT INTO users (name) VALUES (%s)", ("Bread Sheeran",))
     
     conn.commit()
     cur.close()
     conn.close()
 
 
-def create_user(name):
-    sql = "INSERT INTO users (name) VALUES (%s)"
-    cur.execute(sql, (name,))
-
-
 def update_preferences(preferences_dict):
-    sql = "UPDATE news SET {0} = %s WHERE id = 1;".format("blah")
-    cur.execute(sql, (article[key], count))
+    conn = psycopg2.connect("dbname=newz user=postgres")
+    cur = conn.cursor()
+
+    pref_array = []
+    for key in preferences_dict:
+        if preferences_dict[key] == True:
+            pref_array.append(key.lower())
+    sql = "UPDATE users SET category_pref = %s WHERE id = 1;"
+    cur.execute(sql, (pref_array,))
+
+    conn.commit()
+    cur.close()
+    conn.close()
 
 
 def obtain_news(cat, lang, size, start_id):
