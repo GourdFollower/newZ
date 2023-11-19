@@ -41,6 +41,13 @@ class _NavigationExampleState extends State<NavigationExample> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(0),
+        child: AppBar(
+          backgroundColor: const Color(0xFFE1DBED),
+          elevation: 0, // Removes shadow
+        ),
+      ),
       bottomNavigationBar: NavigationBar(
         backgroundColor: const Color(0xFFE1DBED),
         onDestinationSelected: (int index) {
