@@ -46,7 +46,7 @@ class _NavigationExampleState extends State<NavigationExample> {
             currentPageIndex = index;
           });
         },
-        indicatorColor: Color.fromARGB(91, 149, 117, 188),
+        indicatorColor: const Color.fromARGB(91, 149, 117, 188),
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
@@ -113,22 +113,26 @@ class _NavigationExampleState extends State<NavigationExample> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                    padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
                     child: Container(
                       width: 120,
                       height: 120,
-                      clipBehavior: Clip.antiAlias,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF3EDF5),
                         shape: BoxShape.circle,
                       ),
-                      child: Image.network(
-                        'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Default_pfp.svg/2048px-Default_pfp.svg.png',
-                        fit: BoxFit.cover,
+                      child: ClipOval(
+                        child: Center( // Center the image within the ClipOval
+                          child: Image.asset(
+                            'assets/images/bread_sheeran.jpg',
+                            fit: BoxFit.contain,
+                          ),
+                        ),
                       ),
                     ),
                   ),
                   Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(16, 0, 0, 16),
+                    padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 0, 16),
                     child: Text(
                       'Bread Sheeran',
                       style: theme.textTheme.headlineMedium,
@@ -137,7 +141,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                   
                   // Settings
                   Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                    padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +159,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                               color: theme.primaryColor,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            padding: EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(12),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -178,7 +182,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                         Visibility(
                           visible: showSettings,
                           child: Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
+                            padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
                             child: Container(
                               width: double.infinity,
                               height: 150,
@@ -187,7 +191,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(12, 12, 12, 12),
+                                padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 12, 12),
                                 child: Column(
                                   children: [
                                     // Language Dropdown
@@ -217,12 +221,12 @@ class _NavigationExampleState extends State<NavigationExample> {
                                     Visibility(
                                       visible: showSettings,
                                       child: Padding(
-                                        padding: EdgeInsets.symmetric(vertical: 12.0),
+                                        padding: const EdgeInsets.symmetric(vertical: 12.0),
                                         child: ElevatedButton(
                                           onPressed: () {
                                             saveSettings();
                                           },
-                                          child: Text('Save Settings'),
+                                          child: const Text('Save Settings'),
                                         ),
                                       ),
                                     ),
@@ -237,7 +241,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                   ),
                   // Preferences
                   Padding(
-                    padding: EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
+                    padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -255,7 +259,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                               color: theme.primaryColor,
                               borderRadius: BorderRadius.circular(12),
                             ),
-                            padding: EdgeInsets.all(12),
+                            padding: const EdgeInsets.all(12),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -278,7 +282,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                         Visibility(
                           visible: showPreferences,
                           child: Padding(
-                            padding: EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
+                            padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
                             child: Container(
                               width: double.infinity,
                               height: 350,
@@ -287,7 +291,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Padding(
-                                padding: EdgeInsetsDirectional.fromSTEB(12, 12, 12, 12),
+                                padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 12, 12),
                                 child: ListView(
                                   children: [
                                     buildToggleTile('Business', theme),
@@ -301,12 +305,12 @@ class _NavigationExampleState extends State<NavigationExample> {
                                     Visibility(
                                       visible: showPreferences,
                                       child: Padding(
-                                        padding: EdgeInsets.symmetric(vertical: 12.0),
+                                        padding: const EdgeInsets.symmetric(vertical: 12.0),
                                         child: ElevatedButton(
                                           onPressed: () {
                                             savePreferences();
                                           },
-                                          child: Text('Save Preferences'),
+                                          child: const Text('Save Preferences'),
                                         ),
                                       ),
                                     ),
