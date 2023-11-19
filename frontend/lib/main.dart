@@ -51,6 +51,8 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   ScrollController _scrollController = ScrollController();
   List<Widget> containers = [];
+  List<Widget> favoritesContainers = [];
+  List<int> ids = [];
   late final WebViewController controller;
 
   @override
@@ -62,183 +64,276 @@ class _NavigationExampleState extends State<NavigationExample> {
   }
 
   void updateNewsData() async {
-  try {
-    final newData = await getNews(); // Notice the 'await' keyword
-    setState(() {
-      source = newData['source'];
-      author = newData['author'];
-      title = newData['title'];
-      lead = newData['description'];
-      url = newData['url'];
-      media = newData['urltoimage'];
-      date = newData['publishedat'];
-      id = newData['id'];
-      updateContainer(title);
-    });
-  } catch (e) {
-    print('Failed to load news data: $e');
-    // Handle the error state or notify the user
+    try {
+      final newData = await getNews(); // Notice the 'await' keyword
+      setState(() {
+        source = newData['source'];
+        author = newData['author'];
+        title = newData['title'];
+        lead = newData['description'];
+        url = newData['url'];
+        media = newData['urltoimage'];
+        date = newData['publishedat'];
+        id = newData['id'];
+        updateContainer(title);
+      });
+    } catch (e) {
+      print('Failed to load news data: $e');
+      // Handle the error state or notify the user
+    }
   }
-}
-void updateContainer(String newTitle) {
-  print("updating title");
+
+  void updateContainer(String newTitle) {
+    print("updating title");
     setState(() {
       title = newTitle;
     });
   }
 
-void onScroll() {
+  void onScroll() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
       // User has reached the end of the scroll, add a new container
       setState(() {
         containers = List.from(containers);
-        var newContainer = buildContainer();
+        var newContainer =
+            buildContainer(id, source, author, title, lead, url, media, date);
         containers.add(newContainer);
+        ids.add(id);
       });
     }
   }
 
-  Widget buildContainer() {
-    // Call updateNewsData to fetch the news data
+  Widget buildContainer(int buttonID, String source, String author,
+      String title, String lead, String url, String media, String date) {
     updateNewsData();
-
-    // Get the full screen height
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    // Calculate the total height of all other elements outside the ListView
-    double otherElementsHeight = MediaQuery.of(context).padding.top +
-        MediaQuery.of(context).padding.bottom +
-        kBottomNavigationBarHeight +
-        AppBar().preferredSize.height
-        + 94; // HARD CODED!!!
-
-    // Calculate the dynamic height for the container
-    double dynamicHeight = screenHeight - otherElementsHeight;
+    print("title:");
+    print(title);
+    double containerHeight = MediaQuery.of(context).size.height -
+        (MediaQuery.of(context).padding.top + // Adjust for top padding
+            kToolbarHeight + // Adjust for app bar height
+            kBottomNavigationBarHeight + // Adjust for bottom navigation bar height
+            56);
+    //HARD CODED VALUE!!! idk where 57 comes from but it works
+    print(MediaQuery.of(context).size.height);
+    print(MediaQuery.of(context).padding.top);
+    print(kToolbarHeight);
+    print(kBottomNavigationBarHeight);
+    print(AppBar().preferredSize.height);
 
     return Container(
-      height: dynamicHeight, // Use the calculated dynamic height
-      margin: const EdgeInsets.all(15.0),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9F2FD),
-        borderRadius: BorderRadius.circular(15),
-        border: Border.all(
-          color: const Color(0xFF6D3C90),
+      height: containerHeight,
+      child: Container(
+        //height: MediaQuery.of(context).size.height,
+        margin: const EdgeInsets.all(15.0),
+        decoration: BoxDecoration(
+          color: const Color(0xFFF9F2FD),
+          borderRadius: BorderRadius.circular(15),
+          border: Border.all(
+            color: const Color(0xFF6D3C90),
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(15.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Title
-            Text(
-              title.isNotEmpty ? title : "Loading...",
-              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.bold,
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Title
+              Text(
+                title.isNotEmpty ? title : "Loading...",
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 8), // Reduced spacing
+              const SizedBox(height: 8), // Reduced spacing
 
-            // Source and Author
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  source.isNotEmpty ? source : "",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-                Text(
-                  author.isNotEmpty ? "By $author" : "",
-                  style: Theme.of(context).textTheme.bodyLarge,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8), // Reduced spacing
-
-            // Media Image
-            if (media.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(15),
-                  child: Image.network(
-                    media,
-                    fit: BoxFit.cover,
-                    height: 225, // Adjust the height as needed
-                  ),
-                ),
-              ),
-            const SizedBox(height: 12), // Reduced spacing
-
-            // Date in Bold and Lead Text
-            RichText(
-              text: TextSpan(
+              // Source and Author
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  TextSpan(
-                    text: date.isNotEmpty ? parseDate(date) + ' - ' : "",
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                  Text(
+                    source.isNotEmpty ? source : "",
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
-                  TextSpan(
-                    text: lead.isNotEmpty ? lead : "",
-                    style: Theme.of(context).textTheme.bodyLarge, // Uses bodyLarge for consistency
+                  Text(
+                    author.isNotEmpty ? "By $author" : "",
+                    style: Theme.of(context).textTheme.bodyLarge,
                   ),
                 ],
               ),
-              maxLines: 6, // Increased to 8 lines
-              overflow: TextOverflow.ellipsis,
-            ),
-            const Spacer(), // Pushes the button to the bottom
+              const SizedBox(height: 8), // Reduced spacing
 
-            // Bottom Row with Read More button and Bookmark and Chat buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween, // Aligns items to opposite ends
-              children: [
-                // Expanded Read More button
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      readMore('url');
-                    },
-                    child: Text(
-                      'Read More'.toUpperCase(),
-                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Color(0xFF48454F)), // Matches font size with lead, author, and date
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFE1DBED), // Custom background color
-                      shape: const StadiumBorder(),
+              // Media Image
+              if (media.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(15),
+                    child: Image.network(
+                      media,
+                      fit: BoxFit.cover,
+                      height: 225, // Adjust the height as needed
                     ),
                   ),
                 ),
-                // Spacer for separation
-                const SizedBox(width: 14),
-                // Icon buttons in a row
-                Row(
+              const SizedBox(height: 12), // Reduced spacing
+
+              // Date in Bold and Lead Text
+              RichText(
+                text: TextSpan(
                   children: [
-                    CircleAvatar(
-                      backgroundColor: const Color(0xFFE1DBED),
-                      child: IconButton(
-                        icon: const Icon(Icons.bookmark_border, color: Color(0xFF48454F)), // Unfilled bookmark icon
-                        onPressed: () {
-                          addToFavorites(...);
-                        },
-                      ),
+                    TextSpan(
+                      text: date.isNotEmpty ? parseDate(date) + ' - ' : "",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge
+                          ?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                    const SizedBox(width: 14), // Spacing between icons
-                    CircleAvatar(
-                      backgroundColor: const Color(0xFFE1DBED),
-                      child: IconButton(
-                        icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFF48454F)), // More circular chat icon
-                        onPressed: () {
-                          // Add your chat event handler
-                        },
-                      ),
+                    TextSpan(
+                      text: lead.isNotEmpty ? lead : "",
+                      style: Theme.of(context)
+                          .textTheme
+                          .bodyLarge, // Uses bodyLarge for consistency
                     ),
                   ],
                 ),
-              ],
+                maxLines: 6, // Increased to 8 lines
+                overflow: TextOverflow.ellipsis,
+              ),
+              const Spacer(), // Pushes the button to the bottom
+
+              // Bottom Row with Read More button and Bookmark and Chat buttons
+              Row(
+                mainAxisAlignment: MainAxisAlignment
+                    .spaceBetween, // Aligns items to opposite ends
+                children: [
+                  // Expanded Read More button
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        readMore(url);
+                      },
+                      child: Text(
+                        'Read More'.toUpperCase(),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Color(
+                                0xFF48454F)), // Matches font size with lead, author, and date
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color(0xFFE1DBED), // Custom background color
+                        shape: const StadiumBorder(),
+                      ),
+                    ),
+                  ),
+                  // Spacer for separation
+                  const SizedBox(width: 14),
+                  // Icon buttons in a row
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: const Color(0xFFE1DBED),
+                        child: IconButton(
+                          icon: const Icon(Icons.bookmark_border,
+                              color:
+                                  Color(0xFF48454F)), // Unfilled bookmark icon
+                          onPressed: () {
+                            addToFavorites(buttonID, source, author, title,
+                                lead, url, media, date);
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 14), // Spacing between icons
+                      CircleAvatar(
+                        backgroundColor: const Color(0xFFE1DBED),
+                        child: IconButton(
+                          icon: const Icon(Icons.chat_bubble_outline,
+                              color:
+                                  Color(0xFF48454F)), // More circular chat icon
+                          onPressed: () {
+                            // Add your chat event handler
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildFavoritesContainer(int buttonID, String source, String author,
+      String title, String lead, String url, String media, String date) {
+    return Card(
+      child: Container(
+        height: 250,
+        child: Column(
+          children: [
+            // Top Half: Image
+            Container(
+              height: 110, // Adjust the height as needed
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(media),
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8.0), // Adjust the radius as needed
+                  topRight: Radius.circular(8.0), // Adjust the radius as needed
+                ),
+              ),
+            ),
+            // Bottom Half: Title, Subtext, Read More Button
+            Padding(
+              padding: EdgeInsets.all(8.0), // Adjust the padding as needed
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 20, // Adjust the font size as needed
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1, // Limit the text to one line
+                    overflow: TextOverflow
+                        .ellipsis, // Display ellipsis (...) when the text overflows
+                  ),
+                  SizedBox(height: 8), // Adjust the spacing as needed
+                  Text(
+                    lead,
+                    style: TextStyle(
+                        fontSize: 16), // Adjust the font size as needed
+                    maxLines: 1, // Limit the text to one line
+                    overflow: TextOverflow
+                        .ellipsis, // Display ellipsis (...) when the text overflows
+                  ),
+                  SizedBox(height: 8), // Adjust the spacing as needed
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          // Handle the first button press
+                        },
+                        child: Text('Read More'),
+                      ),
+                      Spacer(),
+                      ElevatedButton(
+                        onPressed: () {
+                          // Handle the second button press
+                        },
+                        child: Text('Remove from Saved'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ],
         ),
@@ -293,7 +388,7 @@ void onScroll() {
           NavigationDestination(
             icon: Icon(Icons.search),
             label: 'Search',
-          ),  
+          ),
           NavigationDestination(
             icon: Icon(Icons.account_circle),
             label: 'Profile',
@@ -301,7 +396,6 @@ void onScroll() {
         ],
       ),
       body: <Widget>[
-
         /// Home page
         Scaffold(
           body: Column(
@@ -329,180 +423,10 @@ void onScroll() {
           body: Padding(
             padding: EdgeInsets.all(8.0),
             child: ListView(
-              children: [
-                Card(
-                  child: Container(
-                    height: 250,
-                    child: Column(
-                      children: [
-                        // Top Half: Image
-                        Container(
-                          height: 110, // Adjust the height as needed
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage('https://montreal.ctvnews.ca/content/dam/ctvnews/en/images/2022/9/14/high-school-1-6068707-1663193049618.jpg'),
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(8.0),  // Adjust the radius as needed
-                              topRight: Radius.circular(8.0), // Adjust the radius as needed
-                            ),
-                          ),
-                        ),
-                        // Bottom Half: Title, Subtext, Read More Button
-                        Padding(
-                          padding: EdgeInsets.all(8.0), // Adjust the padding as needed
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Exam scores, graduations and gender gaps: Quebecs high schools, ranked',
-                                style: TextStyle(
-                                  fontSize: 20, // Adjust the font size as needed
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                maxLines: 1, // Limit the text to one line
-                                overflow: TextOverflow.ellipsis, // Display ellipsis (...) when the text overflows
-                              ),
-                              SizedBox(height: 8), // Adjust the spacing as needed
-                              Text(
-                                'A ranking of Quebec high schools was published on Friday, scoring their performance on a variety of academic indicators.',
-                                style: TextStyle(fontSize: 16), // Adjust the font size as needed
-                                maxLines: 1, // Limit the text to one line
-                                overflow: TextOverflow.ellipsis, // Display ellipsis (...) when the text overflows
-                              ),
-                              SizedBox(height: 8), // Adjust the spacing as needed
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      // Handle the first button press
-                                    },
-                                    child: Text('Read More'),
-                                  ),
-                                  Spacer(),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      // Handle the second button press
-                                    },
-                                    child: Text('Remove from Saved'),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Card(
-                  child: Container(
-                    height: 250,
-                    child: Column(
-                      children: [
-                        // Top Half: Image
-                        Container(
-                          height: 110, // Adjust the height as needed
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage('https://montreal.ctvnews.ca/content/dam/ctvnews/en/images/2022/9/14/high-school-1-6068707-1663193049618.jpg'),
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(8.0),  // Adjust the radius as needed
-                              topRight: Radius.circular(8.0), // Adjust the radius as needed
-                            ),
-                          ),
-                        ),
-                        // Bottom Half: Title, Subtext, Read More Button
-                        Padding(
-                          padding: EdgeInsets.all(8.0), // Adjust the padding as needed
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Your Title',
-                                style: TextStyle(
-                                  fontSize: 20, // Adjust the font size as needed
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 8), // Adjust the spacing as needed
-                              Text(
-                                'Your Subtext',
-                                style: TextStyle(fontSize: 16), // Adjust the font size as needed
-                              ),
-                              SizedBox(height: 8), // Adjust the spacing as needed
-                              ElevatedButton(
-                                onPressed: () {
-                                  // Handle Read More button press
-                                },
-                                child: Text('Read More'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                Card(
-                  child: Container(
-                    height: 250,
-                    child: Column(
-                      children: [
-                        // Top Half: Image
-                        Container(
-                          height: 110, // Adjust the height as needed
-                          decoration: BoxDecoration(
-                            image: DecorationImage(
-                              image: NetworkImage('https://montreal.ctvnews.ca/content/dam/ctvnews/en/images/2022/9/14/high-school-1-6068707-1663193049618.jpg'),
-                              fit: BoxFit.cover,
-                            ),
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(8.0),  // Adjust the radius as needed
-                              topRight: Radius.circular(8.0), // Adjust the radius as needed
-                            ),
-                          ),
-                        ),
-                        // Bottom Half: Title, Subtext, Read More Button
-                        Padding(
-                          padding: EdgeInsets.all(8.0), // Adjust the padding as needed
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Your Title',
-                                style: TextStyle(
-                                  fontSize: 20, // Adjust the font size as needed
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              SizedBox(height: 8), // Adjust the spacing as needed
-                              Text(
-                                'Your Subtext',
-                                style: TextStyle(fontSize: 16), // Adjust the font size as needed
-                              ),
-                              SizedBox(height: 8), // Adjust the spacing as needed
-                              ElevatedButton(
-                                onPressed: () {
-                                  // Handle Read More button press
-                                },
-                                child: Text('Read More'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+              children: favoritesContainers,
             ),
           ),
         ),
-
 
         // Search page
         Scaffold(
@@ -776,12 +700,24 @@ void onScroll() {
       ][currentPageIndex],
     );
   }
+
   void _initializeContainers() {
     // Initial containers
     containers = [
-      buildContainer(),
-      // buildContainer(),
-      // buildContainer(),
+      buildContainer(0, "", "", "", "", "", "", ""),
+      buildContainer(0, "", "", "", "", "", "", ""),
+      buildContainer(0, "", "", "", "", "", "", ""),
+    ];
+    favoritesContainers = [
+      buildFavoritesContainer(
+          0,
+          "",
+          "",
+          "Test Title",
+          "",
+          "https://montreal.ctvnews.ca/content/dam/ctvnews/en/images/2022/9/14/high-school-1-6068707-1663193049618.jpg",
+          "https://montreal.ctvnews.ca/content/dam/ctvnews/en/images/2022/9/14/high-school-1-6068707-1663193049618.jpg",
+          "")
     ];
   }
 
@@ -820,50 +756,86 @@ void onScroll() {
   }
 
   String parseDate(String date) {
-  DateTime parsedDate = DateTime.parse(date);
-  String month = '';
-  switch (parsedDate.month) {
-    case 1:
-      month = 'Jan';
-      break;
-    case 2:
-      month = 'Feb';
-      break;
-    case 3:
-      month = 'Mar';
-      break;
-    case 4:
-      month = 'Apr';
-      break;
-    case 5:
-      month = 'May';
-      break;
-    case 6:
-      month = 'Jun';
-      break;
-    case 7:
-      month = 'Jul';
-      break;
-    case 8:
-      month = 'Aug';
-      break;
-    case 9:
-      month = 'Sep';
-      break;
-    case 10:
-      month = 'Oct';
-      break;
-    case 11:
-      month = 'Nov';
-      break;
-    case 12:
-      month = 'Dec';
-      break;
+    DateTime parsedDate = DateTime.parse(date);
+    String month = '';
+    switch (parsedDate.month) {
+      case 1:
+        month = 'Jan';
+        break;
+      case 2:
+        month = 'Feb';
+        break;
+      case 3:
+        month = 'Mar';
+        break;
+      case 4:
+        month = 'Apr';
+        break;
+      case 5:
+        month = 'May';
+        break;
+      case 6:
+        month = 'Jun';
+        break;
+      case 7:
+        month = 'Jul';
+        break;
+      case 8:
+        month = 'Aug';
+        break;
+      case 9:
+        month = 'Sep';
+        break;
+      case 10:
+        month = 'Oct';
+        break;
+      case 11:
+        month = 'Nov';
+        break;
+      case 12:
+        month = 'Dec';
+        break;
+    }
+    String day = parsedDate.day.toString();
+    String year = parsedDate.year.toString();
+    return month != 'May' ? "$month. $day, $year" : "$month $day, $year";
   }
-  String day = parsedDate.day.toString();
-  String year = parsedDate.year.toString();
-  return month != 'May' ? "$month. $day, $year" : "$month $day, $year";
-}
 
+  void addToFavorites(int id, String source, String author, String title,
+      String lead, String url, String media, String date) {
+    print("id");
+    print(id);
+    setState(() {
+      favoritesContainers = List.from(favoritesContainers);
+      var newContainer = buildFavoritesContainer(
+          id, source, author, title, lead, url, media, date);
+      favoritesContainers.add(newContainer);
+      ids.add(id);
+    });
+  }
 
+  void readMore(String url) {
+    controller.loadRequest(
+      Uri.parse(url),
+    );
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => buildWebView(context)),
+    );
+  }
+
+  @override
+  Widget buildWebView(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+          leading: IconButton(
+        icon: const Icon(Icons.arrow_back),
+        onPressed: () async {
+          Navigator.pop(context, true);
+        },
+      )),
+      body: WebViewWidget(
+        controller: controller,
+      ));
+  }
 }
