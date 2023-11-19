@@ -26,6 +26,7 @@ class NavigationExample extends StatefulWidget {
 }
 
 class _NavigationExampleState extends State<NavigationExample> {
+  GlobalKey _logoKey = GlobalKey();
   int currentPageIndex = 0;
   bool showPreferences = false; // Track the visibility state
   bool showSettings = false;
@@ -54,6 +55,9 @@ class _NavigationExampleState extends State<NavigationExample> {
   List<Widget> favoritesContainers = [];
   List<int> ids = [];
   late final WebViewController controller;
+  
+  // Global variable to store logo height
+  double _logoHeight = 0.0;
 
   @override
   void initState() {
@@ -61,6 +65,15 @@ class _NavigationExampleState extends State<NavigationExample> {
     _scrollController.addListener(onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => updateNewsData());
     controller = WebViewController();
+  }
+
+  void _afterLayout(_) {
+    final RenderBox renderBox = _logoKey.currentContext?.findRenderObject() as RenderBox;
+    final size = renderBox.size;
+    print("Logo Size: ${size.width} x ${size.height}");
+    setState(() {
+      _logoHeight = size.height; // Update the logo height
+    });
   }
 
   void updateNewsData() async {
@@ -104,27 +117,31 @@ class _NavigationExampleState extends State<NavigationExample> {
     }
   }
 
-  Widget buildContainer(int buttonID, String source, String author,
-      String title, String lead, String url, String media, String date) {
+  Widget buildContainer(int buttonID, String source, String author, String title, String lead, String url, String media, String date) {
+    // Call updateNewsData to fetch the news data
     updateNewsData();
-    print("title:");
-    print(title);
-    double containerHeight = MediaQuery.of(context).size.height -
-        (MediaQuery.of(context).padding.top + // Adjust for top padding
-            kToolbarHeight + // Adjust for app bar height
-            kBottomNavigationBarHeight + // Adjust for bottom navigation bar height
-            56);
-    //HARD CODED VALUE!!! idk where 57 comes from but it works
-    print(MediaQuery.of(context).size.height);
-    print(MediaQuery.of(context).padding.top);
-    print(kToolbarHeight);
-    print(kBottomNavigationBarHeight);
-    print(AppBar().preferredSize.height);
+
+    // Get the full screen height
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    // Calculate the total height of all other elements outside the ListView
+    double otherElementsHeight = MediaQuery.of(context).padding.top +
+        MediaQuery.of(context).padding.bottom +
+        kBottomNavigationBarHeight +
+        AppBar().preferredSize.height
+        + 94; // HARD CODED!!!
+        print(MediaQuery.of(context).padding.top);
+        print(MediaQuery.of(context).padding.bottom);
+        print(kBottomNavigationBarHeight);
+        print(AppBar().preferredSize.height);
+        print(_logoHeight);
+
+    // Calculate the dynamic height for the container
+    double dynamicHeight = screenHeight - otherElementsHeight;
 
     return Container(
-      height: containerHeight,
       child: Container(
-        //height: MediaQuery.of(context).size.height,
+        height: dynamicHeight,
         margin: const EdgeInsets.all(15.0),
         decoration: BoxDecoration(
           color: const Color(0xFFF9F2FD),
@@ -343,6 +360,7 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
     // Initialize containers only once
     if (!containersInitialized) {
       _initializeContainers();
@@ -365,7 +383,7 @@ class _NavigationExampleState extends State<NavigationExample> {
             ],
           ),
         ),
-      ),
+      ), 
       bottomNavigationBar: NavigationBar(
         backgroundColor: const Color(0xFFE1DBED),
         onDestinationSelected: (int index) {
@@ -404,8 +422,10 @@ class _NavigationExampleState extends State<NavigationExample> {
               const SafeArea(
                 child: SizedBox(height: 0), // Space above the logo
               ),
-              Image.asset('assets/images/logo.jpg'),
-
+              Image.asset(
+                'assets/images/logo.jpg',
+                key: _logoKey,
+              ),
               // Scrollable content
               Expanded(
                 child: ListView(
