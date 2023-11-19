@@ -37,6 +37,39 @@ class _NavigationExampleState extends State<NavigationExample> {
     'Sports': false,
     'Technology': false,
   };
+  String source = '';
+  String author = '';
+  String title = '';
+  String lead = '';
+  String url = '';
+  String media = '';
+  String date = '';
+  String id = '';
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => updateNewsData());
+  }
+
+  void updateNewsData() async {
+  try {
+    final newData = await getNews(); // Notice the 'await' keyword
+    setState(() {
+      source = newData['source'];
+      author = newData['author'];
+      title = newData['title'];
+      lead = newData['description'];
+      url = newData['url'];
+      media = newData['urltoimage'];
+      date = newData['publishedat'];
+      id = newData['id'];
+    });
+  } catch (e) {
+    print('Failed to load news data: $e');
+    // Handle the error state or notify the user
+  }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -79,29 +112,48 @@ class _NavigationExampleState extends State<NavigationExample> {
         ],
       ),
       body: <Widget>[
+
         /// Home page
-          Padding(
+        GestureDetector(
+          onTap: () {
+            updateNewsData();
+          },
+          child: Padding(
             padding: const EdgeInsets.all(0.0),
             child: Column(
               children: <Widget>[
-                const SafeArea(
-                  child: SizedBox(height: 0), // Space above the logo
-                ),
+                const SafeArea(child: SizedBox(height: 0)),
                 Image.asset('assets/images/logo.jpg'),
                 Expanded(
                   child: Container(
-                    margin: const EdgeInsets.all(15.0), // Consistent spacing around the container
+                    margin: const EdgeInsets.all(15.0),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF3F3F3), // Tile colour
+                      color: const Color(0xFFF3F3F3),
                       borderRadius: BorderRadius.circular(15),
-                      border: Border.all(color: const Color(0xFF6D3C90)), // Border colour
+                      border: Border.all(color: const Color(0xFF6D3C90)),
                     ),
-                    // To do
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch, // Ensures the container stretches to fill the width
+                        children: [
+                          // Title
+                          Text(
+                            title.isNotEmpty ? title : "Loading...",
+                            style: theme.textTheme.titleLarge?.copyWith(color: Colors.black),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          // ... Rest of your widget code ...
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ],
             ),
           ),
+        ),
 
         /// Saved page
         Scaffold(
