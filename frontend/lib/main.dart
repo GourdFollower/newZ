@@ -56,9 +56,13 @@ class _NavigationExampleState extends State<NavigationExample> {
             label: 'Home',
           ),
           NavigationDestination(
-            icon: Badge(child: Icon(Icons.notifications_sharp)),
-            label: 'Notifications',
+            icon: Icon(Icons.bookmark),
+            label: 'Saved',
           ),
+          NavigationDestination(
+            icon: Icon(Icons.search),
+            label: 'Search',
+          ),  
           NavigationDestination(
             icon: Icon(Icons.account_circle),
             label: 'Profile',
@@ -67,39 +71,232 @@ class _NavigationExampleState extends State<NavigationExample> {
       ),
       body: <Widget>[
         /// Home page
-        Card(
-          shadowColor: Colors.transparent,
-          margin: const EdgeInsets.all(8.0),
-          child: SizedBox.expand(
-            child: Center(
-              child: Text(
-                'Home page',
-                style: theme.textTheme.titleLarge,
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Card(
+            shadowColor: Colors.white,
+            margin: const EdgeInsets.all(8.0),
+            child: SizedBox.expand(
+              child: Center(
+                child: Text(
+                  'Home page',
+                  style: theme.textTheme.titleLarge,
+                ),
               ),
             ),
           ),
         ),
 
-        /// Notifications page
-        const Padding(
-          padding: EdgeInsets.all(8.0),
-          child: Column(
-            children: <Widget>[
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.notifications_sharp),
-                  title: Text('Notification 1'),
-                  subtitle: Text('This is a notification'),
+        /// Saved page
+        Scaffold(
+          body: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: ListView(
+              children: [
+                Card(
+                  child: Container(
+                    height: 250,
+                    child: Column(
+                      children: [
+                        // Top Half: Image
+                        Container(
+                          height: 110, // Adjust the height as needed
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: NetworkImage('https://montreal.ctvnews.ca/content/dam/ctvnews/en/images/2022/9/14/high-school-1-6068707-1663193049618.jpg'),
+                              fit: BoxFit.cover,
+                            ),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(8.0),  // Adjust the radius as needed
+                              topRight: Radius.circular(8.0), // Adjust the radius as needed
+                            ),
+                          ),
+                        ),
+                        // Bottom Half: Title, Subtext, Read More Button
+                        Padding(
+                          padding: EdgeInsets.all(8.0), // Adjust the padding as needed
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Exam scores, graduations and gender gaps: Quebecs high schools, ranked',
+                                style: TextStyle(
+                                  fontSize: 20, // Adjust the font size as needed
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                maxLines: 1, // Limit the text to one line
+                                overflow: TextOverflow.ellipsis, // Display ellipsis (...) when the text overflows
+                              ),
+                              SizedBox(height: 8), // Adjust the spacing as needed
+                              Text(
+                                'A ranking of Quebec high schools was published on Friday, scoring their performance on a variety of academic indicators.',
+                                style: TextStyle(fontSize: 16), // Adjust the font size as needed
+                                maxLines: 1, // Limit the text to one line
+                                overflow: TextOverflow.ellipsis, // Display ellipsis (...) when the text overflows
+                              ),
+                              SizedBox(height: 8), // Adjust the spacing as needed
+                              Row(
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      // Handle the first button press
+                                    },
+                                    child: Text('Read More'),
+                                  ),
+                                  Spacer(),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      // Handle the second button press
+                                    },
+                                    child: Text('Remove from Saved'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-              Card(
-                child: ListTile(
-                  leading: Icon(Icons.notifications_sharp),
-                  title: Text('Notification 2'),
-                  subtitle: Text('This is a notification'),
+                Card(
+                  child: Container(
+                    height: 250,
+                    child: Column(
+                      children: [
+                        // Top Half: Image
+                        Container(
+                          height: 110, // Adjust the height as needed
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: NetworkImage('https://montreal.ctvnews.ca/content/dam/ctvnews/en/images/2022/9/14/high-school-1-6068707-1663193049618.jpg'),
+                              fit: BoxFit.cover,
+                            ),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(8.0),  // Adjust the radius as needed
+                              topRight: Radius.circular(8.0), // Adjust the radius as needed
+                            ),
+                          ),
+                        ),
+                        // Bottom Half: Title, Subtext, Read More Button
+                        Padding(
+                          padding: EdgeInsets.all(8.0), // Adjust the padding as needed
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Your Title',
+                                style: TextStyle(
+                                  fontSize: 20, // Adjust the font size as needed
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 8), // Adjust the spacing as needed
+                              Text(
+                                'Your Subtext',
+                                style: TextStyle(fontSize: 16), // Adjust the font size as needed
+                              ),
+                              SizedBox(height: 8), // Adjust the spacing as needed
+                              ElevatedButton(
+                                onPressed: () {
+                                  // Handle Read More button press
+                                },
+                                child: Text('Read More'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ],
+                Card(
+                  child: Container(
+                    height: 250,
+                    child: Column(
+                      children: [
+                        // Top Half: Image
+                        Container(
+                          height: 110, // Adjust the height as needed
+                          decoration: BoxDecoration(
+                            image: DecorationImage(
+                              image: NetworkImage('https://montreal.ctvnews.ca/content/dam/ctvnews/en/images/2022/9/14/high-school-1-6068707-1663193049618.jpg'),
+                              fit: BoxFit.cover,
+                            ),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(8.0),  // Adjust the radius as needed
+                              topRight: Radius.circular(8.0), // Adjust the radius as needed
+                            ),
+                          ),
+                        ),
+                        // Bottom Half: Title, Subtext, Read More Button
+                        Padding(
+                          padding: EdgeInsets.all(8.0), // Adjust the padding as needed
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Your Title',
+                                style: TextStyle(
+                                  fontSize: 20, // Adjust the font size as needed
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 8), // Adjust the spacing as needed
+                              Text(
+                                'Your Subtext',
+                                style: TextStyle(fontSize: 16), // Adjust the font size as needed
+                              ),
+                              SizedBox(height: 8), // Adjust the spacing as needed
+                              ElevatedButton(
+                                onPressed: () {
+                                  // Handle Read More button press
+                                },
+                                child: Text('Read More'),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+
+        // Search page
+        Scaffold(
+          body: Padding(
+            padding: const EdgeInsets.only(top: 50, left: 8, right: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Search bar and button
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Search...',
+                        ),
+                        onChanged: (query) {
+                          // Handle search query changes
+                        },
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.search),
+                      onPressed: () {
+                        // Handle search action
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
 
@@ -258,7 +455,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                           onTap: () {
                             setState(() {
                               showPreferences = !showPreferences;
-                              showSettings = !showSettings;
+                              showSettings = false;
                             });
                           },
                           child: Container(
