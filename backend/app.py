@@ -40,10 +40,21 @@ def get_news_articles():
     # articles = fetch_news_articles()
     return jsonify(article)
 
+@app.route('/language', methods=['POST'])
+def update_language():
+    data = request.json
+    selected_language = data.get('language')
+    # Process the selected language as needed
+    
+    print(f"Received selected language: {selected_language}")
+    return jsonify({'message': 'Language updated successfully'})
+
 def update_preferences(preferences_dict):
     sql = "UPDATE news SET {0} = %s WHERE id = 1;".format("blah")
     print("preferences updated in database: ", str(preferences_dict))
     #cur.execute(sql, (article[key], count))
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

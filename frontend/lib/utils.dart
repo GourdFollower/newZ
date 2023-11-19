@@ -65,6 +65,24 @@ void getNews() async {
   }
 }
 
+void setLanguage(String language) async {
+  log("set language", level: 0);
+  const url = 'http://127.0.0.1:5000/language';
+  final response = await http.post(
+    Uri.parse(url),
+    body: jsonEncode({'language': language}),
+    headers: {'Content-Type': 'application/json'},
+  );
+
+  if (response.statusCode == 200) {
+    // Handle a successful response
+    log('Langueage sent successfully', level: 0);
+  } else {
+    // Handle errors
+    log('Failed to set language: ${response.statusCode}', level: 0);
+  }
+}
+
 void main() {
   // Example call when user submits preferences
   log("main", level: 0);

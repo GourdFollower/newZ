@@ -373,5 +373,7 @@ class _NavigationExampleState extends State<NavigationExample> {
     // Implement the logic to send toggleStates to your desired function or API
     // For example, you can print the states for now
     print('Saving Settings: $selectedLanguage');
+    String lang = selectedLanguage.toString();
+    setLanguage(lang);
   }
 }
