@@ -3,6 +3,8 @@ import psycopg2
 import nltk
 from nltk.corpus import stopwords
 
+nltk.download('stopwords')
+
 from init_db import *
 
 app = Flask(__name__)
@@ -44,6 +46,7 @@ def update_saved():
 @app.route('/saved', methods=['GET'])
 def get_saved_articles():
     articles = get_saved()
+    print(articles)
     return articles
 
 @app.route('/language', methods=['POST'])
@@ -56,18 +59,40 @@ def update_language():
     return jsonify({'message': 'Language updated successfully'})
 
 
-@app.route('/query', methods=['POST'])
+# @app.route('/query', methods=['POST', 'GET'])
+# def run_query():
+#     data = request.json
+#     query = data.get('query')
+#     # Process query
+#     filtered_words = [word for word in query.split() if word not in stop_words]
+#     query = 'AND'.join(filtered_words)
+#     # query and return list of dictionaries
+#     r = query_articles(query, 100)
+#     return r
+
+
+@app.route('/search_query', methods=['POST'])
 def run_query():
-    data = request.json
-    query = data.get('query')
-    # Process query
-    filtered_words = [word for word in query.split() if word not in stop_words]
-    query = 'AND'.join(filtered_words)
-    # query and return list of dictionaries
-    r = query_articles(query, 100)
-    return r
+    try:
+        data = request.json
+        query = data.get('query').strip()
+        # Process query
+        filtered_words = [word for word in query.split() if word not in stop_words]
+        query = 'AND'.join(filtered_words)
+        articles = query_articles(query, 10)
+
+        # Send the articles back to the frontend
+        return jsonify({'success': True, 'articles': articles})
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 if __name__ == '__main__':
     #init_db()
     fake_init()
+    add_saved(2)
     app.run(debug=True)
