@@ -1,12 +1,9 @@
 from flask import Flask, request, jsonify
 import psycopg2
-import nltk
-from nltk.corpus import stopwords
 
 from init_db import *
 
 app = Flask(__name__)
-stop_words = set(stopwords.words('english'))
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -69,5 +66,4 @@ def run_query():
 
 if __name__ == '__main__':
     #init_db()
-    fake_init()
     app.run(debug=True)

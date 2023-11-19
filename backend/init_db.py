@@ -43,24 +43,6 @@ def init_db():
     conn.close()
 
 
-def fake_init():
-    conn = psycopg2.connect("dbname=newz user=postgres")
-    cur = conn.cursor()
-    cur.execute("DROP TABLE IF EXISTS users;")
-    cur.execute("CREATE TABLE users (id serial PRIMARY KEY, name text, category_pref text[], \
-        language_pref text[], country_pref text[], articles_read integer[], \
-            articles_saved integer[]);")
-    conn.commit()
-    
-    categories = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology']
-    saved = []
-    cur.execute("INSERT INTO users (name, category_pref, articles_saved) VALUES (%s, %s, %s)", ("Bread Sheeran", categories, saved))
-    conn.commit()
-    cur.close()
-    conn.close()
-
-
-
 def update_preferences(preferences_dict):
     conn = psycopg2.connect("dbname=newz user=postgres")
     cur = conn.cursor()
@@ -85,8 +67,6 @@ def obtain_news(cat, lang, size, start_id):
 
     top_headlines = newsapi.get_top_headlines(category=cat, language=lang, page_size=size)
     articles = top_headlines['articles']
-
-    print(articles[0])
 
     count = start_id
     new_id = start_id
@@ -213,5 +193,3 @@ def query_articles(query, size):
 
 def change_language():
     pass
-
-init_db()
