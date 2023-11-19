@@ -7,6 +7,7 @@ import random
 
 NEWS_API_KEY = '7298fe90084642578b34773b0ed70e88'
 current_category = None
+LANGUAGE = 'en'
 
 
 def init_db():
@@ -25,7 +26,8 @@ def init_db():
     conn.commit()
 
     categories = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology']
-    cur.execute("INSERT INTO users (name, category_pref) VALUES (%s, %s)", ("Bread Sheeran", categories))
+    saved = []
+    cur.execute("INSERT INTO users (name, category_pref, articles_saved) VALUES (%s, %s, %s)", ("Bread Sheeran", categories, saved))
     conn.commit()
 
     start_id = 0
@@ -35,6 +37,24 @@ def init_db():
     conn.commit()
     cur.close()
     conn.close()
+
+
+def fake_init():
+    conn = psycopg2.connect("dbname=newz user=postgres")
+    cur = conn.cursor()
+    cur.execute("DROP TABLE IF EXISTS users;")
+    cur.execute("CREATE TABLE users (id serial PRIMARY KEY, name text, category_pref text[], \
+        language_pref text[], country_pref text[], articles_read integer[], \
+            articles_saved integer[]);")
+    conn.commit()
+    
+    categories = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology']
+    saved = []
+    cur.execute("INSERT INTO users (name, category_pref, articles_saved) VALUES (%s, %s, %s)", ("Bread Sheeran", categories, saved))
+    conn.commit()
+    cur.close()
+    conn.close()
+
 
 
 def update_preferences(preferences_dict):
@@ -57,7 +77,7 @@ def obtain_news(cat, lang, size, start_id):
     conn = psycopg2.connect("dbname=newz user=postgres")
     cur = conn.cursor()
 
-    newsapi = NewsApiClient(api_key='7298fe90084642578b34773b0ed70e88')
+    newsapi = NewsApiClient(api_key=NEWS_API_KEY)
 
     top_headlines = newsapi.get_top_headlines(category=cat, language=lang, page_size=size)
     articles = top_headlines['articles']
@@ -140,3 +160,53 @@ def return_article():
     cur.close()
     conn.close()
     return json_output
+
+
+def get_saved():
+    conn = psycopg2.connect("dbname=newz user=postgres")
+    cur = conn.cursor()
+    sql = "SELECT articles_saved FROM users"
+    cur.execute(sql)
+    saved = cur.fetchone()[0]
+    print(saved)
+
+    list_saved = []
+    for i in saved:
+        j = return_json(i, cur)
+        list_saved.append(j)
+
+    conn.commit()
+    cur.close()
+    conn.close()
+    return list_saved
+
+
+def add_saved(id):
+    conn = psycopg2.connect("dbname=newz user=postgres")
+    cur = conn.cursor()
+    sql = "SELECT articles_saved FROM users"
+    cur.execute(sql)
+    saved = cur.fetchone()[0]
+    saved.append(id)
+    sql = "UPDATE users SET articles_saved = %s WHERE id = 1;"
+    cur.execute(sql, (saved,))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+def query_articles(query, size):
+    conn = psycopg2.connect("dbname=newz user=postgres")
+    cur = conn.cursor()
+
+    newsapi = NewsApiClient(api_key=NEWS_API_KEY)
+
+    top_headlines = newsapi.get_everything(q = query, language=LANGUAGE, page_size=size, sort_by='relevancy')
+    articles = top_headlines['articles']
+
+    print(articles[0])
+    return articles
+
+def change_language():
+    pass
+

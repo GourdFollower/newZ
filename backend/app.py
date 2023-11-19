@@ -4,24 +4,10 @@ from init_db import *
 
 app = Flask(__name__)
 
-def update_database(name):
-    conn = psycopg2.connect("dbname=newz user=postgres")
-    cur = conn.cursor()
-
-    cur.execute("DROP TABLE IF EXISTS test;")
-    cur.execute("CREATE TABLE test (id serial PRIMARY KEY, data varchar);")
-
-    cur.execute("INSERT INTO test (data) VALUES (%s)", (name,))
-    conn.commit()
-    
-    cur.close()
-    conn.close()
-
 
 @app.route('/', methods=['POST', 'GET'])
 def hello():
     name = request.json['name']
-    update_database(name)
     return 'Hello, World!'
 
 
@@ -41,12 +27,18 @@ def get_news_articles():
     article = return_article()
     return article
 
+@app.route('/update_saved', methods=['POST'])
+def update_saved():
+    data = request.get_json()
+    id = data.get('id')
+    # Process preferences
+    print('Received id: ', str(id))
+    add_saved(id)
+    return jsonify({'message': 'Saved article received successfully'})
+
 @app.route('/saved', methods=['GET'])
 def get_saved_articles():
-    articles =  [{"id": 1, "title": "Article 1"},
-                 {"id": 2, "title": "Article 2"},
-                 {"id": 3, "title": "Article 3"}]
-    #article = return_article()
+    articles = get_saved()
     return articles
 
 @app.route('/language', methods=['POST'])
@@ -59,6 +51,15 @@ def update_language():
     return jsonify({'message': 'Language updated successfully'})
 
 
+@app.route('/query', methods=['POST'])
+def run_query():
+    data = request.json
+    query = data.get('query')
+    # query and return list of dictionaries
+    r = query_articles(query, 100)
+    return r
+
 if __name__ == '__main__':
-    init_db()
+    #init_db()
+    fake_init()
     app.run(debug=True)
