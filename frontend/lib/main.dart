@@ -26,7 +26,6 @@ class NavigationExample extends StatefulWidget {
 }
 
 class _NavigationExampleState extends State<NavigationExample> {
-  GlobalKey _logoKey = GlobalKey();
   int currentPageIndex = 0;
   bool showPreferences = false; // Track the visibility state
   bool showSettings = false;
@@ -55,9 +54,6 @@ class _NavigationExampleState extends State<NavigationExample> {
   List<Widget> favoritesContainers = [];
   List<int> ids = [];
   late final WebViewController controller;
-  
-  // Global variable to store logo height
-  double _logoHeight = 0.0;
 
   @override
   void initState() {
@@ -65,15 +61,6 @@ class _NavigationExampleState extends State<NavigationExample> {
     _scrollController.addListener(onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => updateNewsData());
     controller = WebViewController();
-  }
-
-  void _afterLayout(_) {
-    final RenderBox renderBox = _logoKey.currentContext?.findRenderObject() as RenderBox;
-    final size = renderBox.size;
-    print("Logo Size: ${size.width} x ${size.height}");
-    setState(() {
-      _logoHeight = size.height; // Update the logo height
-    });
   }
 
   void updateNewsData() async {
@@ -97,7 +84,7 @@ class _NavigationExampleState extends State<NavigationExample> {
   }
 
   void updateContainer(String newTitle) {
-    print("updating title");
+    print("Updating title...");
     setState(() {
       title = newTitle;
     });
@@ -120,23 +107,24 @@ class _NavigationExampleState extends State<NavigationExample> {
   Widget buildContainer(int buttonID, String source, String author, String title, String lead, String url, String media, String date) {
     // Call updateNewsData to fetch the news data
     updateNewsData();
-    print("title:");
-    print(title);
-    double containerHeight = MediaQuery.of(context).size.height -
-        (MediaQuery.of(context).padding.top + // Adjust for top padding
-            kToolbarHeight + // Adjust for app bar height
-            kBottomNavigationBarHeight + // Adjust for bottom navigation bar height
-            94);
-    //HARD CODED VALUE!!! idk where 57 comes from but it works
-    print(MediaQuery.of(context).size.height);
-    print(MediaQuery.of(context).padding.top);
-    print(kToolbarHeight);
-    print(kBottomNavigationBarHeight);
-    print(AppBar().preferredSize.height);
+
+    // Get the full screen height
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    // Calculate the total height of all other elements outside the ListView
+    double otherElementsHeight = MediaQuery.of(context).padding.top +
+        96.37263726372636 + // Logo size
+        24 + // Padding for container
+        MediaQuery.of(context).padding.bottom +
+        kBottomNavigationBarHeight; //
+    
+    // Calculate the dynamic height for the container
+    double containerHeight = screenHeight - otherElementsHeight;
 
     return Container(
+      height: containerHeight,
       child: Container(
-        height: dynamicHeight,
+        //height: MediaQuery.of(context).size.height,
         margin: const EdgeInsets.all(15.0),
         decoration: BoxDecoration(
           color: const Color(0xFFF9F2FD),
@@ -355,7 +343,6 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   @override
   Widget build(BuildContext context) {
-    WidgetsBinding.instance.addPostFrameCallback(_afterLayout);
     // Initialize containers only once
     if (!containersInitialized) {
       _initializeContainers();
@@ -378,7 +365,7 @@ class _NavigationExampleState extends State<NavigationExample> {
             ],
           ),
         ),
-      ), 
+      ),
       bottomNavigationBar: NavigationBar(
         backgroundColor: const Color(0xFFE1DBED),
         onDestinationSelected: (int index) {
@@ -417,10 +404,8 @@ class _NavigationExampleState extends State<NavigationExample> {
               const SafeArea(
                 child: SizedBox(height: 0), // Space above the logo
               ),
-              Image.asset(
-                'assets/images/logo.jpg',
-                key: _logoKey,
-              ),
+              Image.asset('assets/images/logo.jpg'),
+
               // Scrollable content
               Expanded(
                 child: ListView(
@@ -754,7 +739,7 @@ class _NavigationExampleState extends State<NavigationExample> {
   // Function to save preferences
   void savePreferences() {
     // update preferences in backend
-    print('Saving Preferences: $toggleStates');
+    print('Saving preferences: $toggleStates');
     Map<String, bool> preferences = {};
     toggleStates.forEach((key, value) {
       preferences[key] = value;
@@ -765,7 +750,7 @@ class _NavigationExampleState extends State<NavigationExample> {
   void saveSettings() {
     // Implement the logic to send toggleStates to your desired function or API
     // For example, you can print the states for now
-    print('Saving Settings: $selectedLanguage');
+    print('Saving settings: $selectedLanguage');
     String lang = selectedLanguage.toString();
     setLanguage(lang);
   }
@@ -818,8 +803,8 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   void addToFavorites(int id, String source, String author, String title,
       String lead, String url, String media, String date) {
-    print("id");
-    print(id);
+    //print("id");
+    //print(id);
     setState(() {
       favoritesContainers = List.from(favoritesContainers);
       var newContainer = buildFavoritesContainer(
