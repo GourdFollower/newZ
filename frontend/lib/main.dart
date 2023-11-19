@@ -42,12 +42,13 @@ class _NavigationExampleState extends State<NavigationExample> {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
       bottomNavigationBar: NavigationBar(
+        backgroundColor: const Color(0xFFE1DBED),
         onDestinationSelected: (int index) {
           setState(() {
             currentPageIndex = index;
           });
         },
-        indicatorColor: const Color.fromARGB(91, 149, 117, 188),
+        indicatorColor: const Color(0xFFB4A6D5),
         selectedIndex: currentPageIndex,
         destinations: const <Widget>[
           NavigationDestination(
@@ -71,21 +72,26 @@ class _NavigationExampleState extends State<NavigationExample> {
       ),
       body: <Widget>[
         /// Home page
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Card(
-            shadowColor: Colors.white,
-            margin: const EdgeInsets.all(8.0),
-            child: SizedBox.expand(
-              child: Center(
-                child: Text(
-                  'Home page',
-                  style: theme.textTheme.titleLarge,
+          Padding(
+            padding: const EdgeInsets.all(0.0),
+            child: Column(
+              children: <Widget>[
+                const SizedBox(height: 0), // Space above the logo
+                Image.asset('assets/images/logo.jpg'),
+                Expanded(
+                  child: Container(
+                    margin: const EdgeInsets.all(15.0), // Consistent spacing around the container
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF3F3F3), // Tile colour
+                      borderRadius: BorderRadius.circular(15),
+                      border: Border.all(color: const Color(0xFF6D3C90)), // Border colour
+                    ),
+                    // To do
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
-        ),
 
         /// Saved page
         Scaffold(
@@ -317,7 +323,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                       width: 120,
                       height: 120,
                       decoration: const BoxDecoration(
-                        color: Color(0xFFF3EDF5),
+                        color: Color(0xFFE1DBED),
                         shape: BoxShape.circle,
                       ),
                       child: ClipOval(
