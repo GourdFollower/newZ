@@ -17,9 +17,31 @@ def update_database(name):
     conn.close()
 
 
-
-@app.route('/', methods=['POST'])
+@app.route('/', methods=['POST', 'GET'])
 def hello():
     name = request.json['name']
     update_database(name)
     return 'Hello, World!'
+
+
+@app.route('/preferences', methods=['POST'])
+def receive_preferences():
+    data = request.get_json()
+    preferences = data.get('preferences', [])
+    # Process preferences
+    print('Received preferences:', preferences)
+    #set_preferences(preferences)
+    return jsonify({'message': 'Preferences received successfully'})
+
+@app.route('/news', methods=['GET'])
+def get_news_articles():
+    articles =  [
+        {"id": 1, "title": "Article 1"},
+        {"id": 2, "title": "Article 2"},
+        {"id": 3, "title": "Article 3"},
+    ]
+    # articles = fetch_news_articles()
+    return jsonify({'news_articles': articles})
+
+if __name__ == '__main__':
+    app.run(debug=True)
