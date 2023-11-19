@@ -129,6 +129,12 @@ void onScroll() {
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
+            ElevatedButton(
+              onPressed: () {
+                readMore();
+              },
+              child: const Text('Read More'),
+            ),
             // ... Rest of your widget code ...
           ],
         ),
@@ -699,5 +705,11 @@ void onScroll() {
     print('Saving Settings: $selectedLanguage');
     String lang = selectedLanguage.toString();
     setLanguage(lang);
+  }
+
+  void readMore() {
+    // Implement the logic to send toggleStates to your desired function or API
+    // For example, you can print the states for now
+    print('read more');
   }
 }
