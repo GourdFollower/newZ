@@ -1,6 +1,5 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
-import requests
 import json
 from newsapi import NewsApiClient
 import random
@@ -23,8 +22,15 @@ def init_db():
     cur.execute("CREATE TABLE users (id serial PRIMARY KEY, name text, category_pref text[], \
         language_pref text[], country_pref text[], articles_read integer[], \
             articles_saved integer[]);")
+    conn.commit()
 
     cur.execute("INSERT INTO users (name) VALUES (%s)", ("Bread Sheeran",))
+    conn.commit()
+
+    categories = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology']
+    start_id = 0
+    for i in categories:
+        start_id = obtain_news(i, 'en', 100, start_id)
     
     conn.commit()
     cur.close()
@@ -134,4 +140,3 @@ def return_article():
     cur.close()
     conn.close()
     return json_output
-
