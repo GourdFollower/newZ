@@ -50,9 +50,12 @@ class _NavigationExampleState extends State<NavigationExample> {
   bool containersInitialized = false;
 
   ScrollController _scrollController = ScrollController();
+  TextEditingController searchController = TextEditingController();
   List<Widget> containers = [];
   List<Widget> favoritesContainers = [];
+  List<Widget> searchContainers = [];
   List<int> ids = [];
+  List<dynamic> searchResults = [];
   late final WebViewController controller;
 
   @override
@@ -61,6 +64,44 @@ class _NavigationExampleState extends State<NavigationExample> {
     _scrollController.addListener(onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) => updateNewsData());
     controller = WebViewController();
+  }
+
+  void makeQuery(String query) async {
+    try {
+      List<dynamic> results = await sendQuery(query);
+      print("RESULTS:");
+      //print(results);
+      setState(() {
+        searchResults = results;
+        // Clear previous containers
+        searchContainers.clear();
+        // Build new containers for each search result
+        for (var result in searchResults) {
+          source = result['source'];
+          author = result['author'];
+          title = result['title'];
+          lead = result['description'];
+          url = result['url'];
+          media = result['urltoimage'];
+          date = result['publishedat'];
+          id = result['id'];
+
+          searchContainers.add(buildSearchContainer(
+              id, source, author, title, lead, url, media, date));
+        }
+      });
+      setState(() {
+        print("testinggg");
+        currentPageIndex = 0;
+      });
+      setState(() {
+        currentPageIndex = 2;
+      });
+      return;
+    } catch (e) {
+      print(e);
+      print("Failed to query search results");
+    }
   }
 
   void _scrollDown() async {
@@ -103,7 +144,8 @@ class _NavigationExampleState extends State<NavigationExample> {
     }
   }
 
-  Widget buildContainer(int buttonID, String source, String author, String title, String lead, String url, String media, String date) {
+  Widget buildContainer(int buttonID, String source, String author,
+      String title, String lead, String url, String media, String date) {
     // Call updateNewsData to fetch the news data
     updateNewsData();
     double containerHeight = MediaQuery.of(context).size.height -
@@ -258,9 +300,77 @@ class _NavigationExampleState extends State<NavigationExample> {
     );
   }
 
+  Widget buildSearchContainer(int buttonID, String source, String author,
+      String title, String lead, String url, String media, String date) {
+    print("test1");
+    return Card(
+      child: Container(
+        height: 250,
+        child: Column(
+          children: [
+            // Top Half: Image
+            Container(
+              height: 110, // Adjust the height as needed
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: NetworkImage(media),
+                  fit: BoxFit.cover,
+                ),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(8.0), // Adjust the radius as needed
+                  topRight: Radius.circular(8.0), // Adjust the radius as needed
+                ),
+              ),
+            ),
+            // Bottom Half: Title, Subtext, Read More Button
+            Padding(
+              padding: EdgeInsets.all(8.0), // Adjust the padding as needed
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 20, // Adjust the font size as needed
+                      fontWeight: FontWeight.bold,
+                    ),
+                    maxLines: 1, // Limit the text to one line
+                    overflow: TextOverflow
+                        .ellipsis, // Display ellipsis (...) when the text overflows
+                  ),
+                  SizedBox(height: 8), // Adjust the spacing as needed
+                  Text(
+                    lead,
+                    style: TextStyle(
+                        fontSize: 16), // Adjust the font size as needed
+                    maxLines: 1, // Limit the text to one line
+                    overflow: TextOverflow
+                        .ellipsis, // Display ellipsis (...) when the text overflows
+                  ),
+                  SizedBox(height: 8), // Adjust the spacing as needed
+                  Row(
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          // Handle the first button press
+                        },
+                        child: Text('Read More'),
+                      ),
+                      
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget buildFavoritesContainer(int buttonID, String source, String author,
       String title, String lead, String url, String media, String date) {
-    return Card(
+        return Card(
       child: Container(
         height: 255,
         child: Column(
@@ -307,13 +417,13 @@ class _NavigationExampleState extends State<NavigationExample> {
                   SizedBox(height: 8), // Adjust the spacing as needed
                   Row(
                     children: [
-                  // Expanded Read More button
+                      // Expanded Read More button
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        readMore(url);
-                      },
-                      child: Text(
+                        onPressed: () {
+                          readMore(url);
+                        },
+                        child: Text(
                         'Read More'.toUpperCase(),
                         style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                             color: Color(
@@ -337,14 +447,14 @@ class _NavigationExampleState extends State<NavigationExample> {
                           icon: const Icon(Icons.chat_bubble_outline,
                               color:
                                   Color(0xFF48454F)), // More circular chat icon
-                          onPressed: () {
-                            // Add your chat event handler
-                          },
+                        onPressed: () {
+                          // Add your chat event handler
+                        },
                         ),
                       ),
+],
+                      ),
                     ],
-                  ),
-                ],
                   ),
                 ],
               ),
@@ -480,6 +590,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                       children: [
                         Expanded(
                           child: TextField(
+                        controller: searchController, // Attach the controller
                             decoration: InputDecoration(
                               hintText: 'Search...',
                             ),
@@ -491,11 +602,18 @@ class _NavigationExampleState extends State<NavigationExample> {
                         IconButton(
                           icon: Icon(Icons.search),
                           onPressed: () {
-                            // Handle search action
+                            print(
+                            'Search Button Clicked: ${searchController.text}');
+                        makeQuery('${searchController.text}');
                           },
                         ),
                       ],
                     ),
+                Expanded(
+                  child: ListView(
+                    children: searchContainers,
+                  ),
+                ),
                   ],
                 ),
               ),
