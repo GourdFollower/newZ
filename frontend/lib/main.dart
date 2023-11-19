@@ -9,6 +9,7 @@ class NavigationBarApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(useMaterial3: true),
       home: const NavigationExample(),
     );
@@ -41,6 +42,13 @@ class _NavigationExampleState extends State<NavigationExample> {
   Widget build(BuildContext context) {
     final ThemeData theme = Theme.of(context);
     return Scaffold(
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(0),
+        child: AppBar(
+          backgroundColor: const Color(0xFFE1DBED),
+          elevation: 0, // Removes shadow
+        ),
+      ),
       bottomNavigationBar: NavigationBar(
         backgroundColor: const Color(0xFFE1DBED),
         onDestinationSelected: (int index) {
@@ -76,7 +84,9 @@ class _NavigationExampleState extends State<NavigationExample> {
             padding: const EdgeInsets.all(0.0),
             child: Column(
               children: <Widget>[
-                const SizedBox(height: 0), // Space above the logo
+                const SafeArea(
+                  child: SizedBox(height: 0), // Space above the logo
+                ),
                 Image.asset('assets/images/logo.jpg'),
                 Expanded(
                   child: Container(
