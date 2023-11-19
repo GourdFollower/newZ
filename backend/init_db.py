@@ -1,7 +1,7 @@
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import json
-from newsapi import NewsApiClient
+from newsapi.newsapi_client import NewsApiClient
 import random
 
 
