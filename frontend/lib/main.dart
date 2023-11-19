@@ -120,24 +120,19 @@ class _NavigationExampleState extends State<NavigationExample> {
   Widget buildContainer(int buttonID, String source, String author, String title, String lead, String url, String media, String date) {
     // Call updateNewsData to fetch the news data
     updateNewsData();
-
-    // Get the full screen height
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    // Calculate the total height of all other elements outside the ListView
-    double otherElementsHeight = MediaQuery.of(context).padding.top +
-        MediaQuery.of(context).padding.bottom +
-        kBottomNavigationBarHeight +
-        AppBar().preferredSize.height
-        + 94; // HARD CODED!!!
-        print(MediaQuery.of(context).padding.top);
-        print(MediaQuery.of(context).padding.bottom);
-        print(kBottomNavigationBarHeight);
-        print(AppBar().preferredSize.height);
-        print(_logoHeight);
-
-    // Calculate the dynamic height for the container
-    double dynamicHeight = screenHeight - otherElementsHeight;
+    print("title:");
+    print(title);
+    double containerHeight = MediaQuery.of(context).size.height -
+        (MediaQuery.of(context).padding.top + // Adjust for top padding
+            kToolbarHeight + // Adjust for app bar height
+            kBottomNavigationBarHeight + // Adjust for bottom navigation bar height
+            94);
+    //HARD CODED VALUE!!! idk where 57 comes from but it works
+    print(MediaQuery.of(context).size.height);
+    print(MediaQuery.of(context).padding.top);
+    print(kToolbarHeight);
+    print(kBottomNavigationBarHeight);
+    print(AppBar().preferredSize.height);
 
     return Container(
       child: Container(
@@ -336,14 +331,14 @@ class _NavigationExampleState extends State<NavigationExample> {
                     children: [
                       ElevatedButton(
                         onPressed: () {
-                          // Handle the first button press
+                          readMore(url);
                         },
                         child: Text('Read More'),
                       ),
                       Spacer(),
                       ElevatedButton(
                         onPressed: () {
-                          // Handle the second button press
+                          // remove functionality
                         },
                         child: Text('Remove from Saved'),
                       ),

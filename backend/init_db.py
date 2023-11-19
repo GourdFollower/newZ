@@ -5,7 +5,7 @@ from newsapi import NewsApiClient
 import random
 
 
-NEWS_API_KEY = '7298fe90084642578b34773b0ed70e88'
+NEWS_API_KEY = 'ef20faf5d267474d85bfdd0b53a5f7c0'
 current_category = None
 LANGUAGE = 'en'
 
@@ -33,28 +33,14 @@ def init_db():
     start_id = 0
     for i in categories:
         start_id = obtain_news(i, 'en', 100, start_id)
+
+    sql = "DELETE FROM news WHERE length(author) > 20 OR length(source) > 20 OR \
+      not(author ILIKE '% %') OR length(description) < 50;"
+    cur.execute(sql)
     
     conn.commit()
     cur.close()
     conn.close()
-
-
-def fake_init():
-    conn = psycopg2.connect("dbname=newz user=postgres")
-    cur = conn.cursor()
-    cur.execute("DROP TABLE IF EXISTS users;")
-    cur.execute("CREATE TABLE users (id serial PRIMARY KEY, name text, category_pref text[], \
-        language_pref text[], country_pref text[], articles_read integer[], \
-            articles_saved integer[]);")
-    conn.commit()
-    
-    categories = ['business', 'entertainment', 'general', 'health', 'science', 'sports', 'technology']
-    saved = []
-    cur.execute("INSERT INTO users (name, category_pref, articles_saved) VALUES (%s, %s, %s)", ("Bread Sheeran", categories, saved))
-    conn.commit()
-    cur.close()
-    conn.close()
-
 
 
 def update_preferences(preferences_dict):
@@ -81,8 +67,6 @@ def obtain_news(cat, lang, size, start_id):
 
     top_headlines = newsapi.get_top_headlines(category=cat, language=lang, page_size=size)
     articles = top_headlines['articles']
-
-    print(articles[0])
 
     count = start_id
     new_id = start_id
@@ -209,4 +193,3 @@ def query_articles(query, size):
 
 def change_language():
     pass
-
