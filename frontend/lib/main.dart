@@ -590,7 +590,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                       children: [
                         Expanded(
                           child: TextField(
-                        controller: searchController, // Attach the controller
+                            controller: searchController, // Attach the controller
                             decoration: InputDecoration(
                               hintText: 'Search...',
                             ),
@@ -604,19 +604,19 @@ class _NavigationExampleState extends State<NavigationExample> {
                           onPressed: () {
                             print(
                             'Search Button Clicked: ${searchController.text}');
-                        makeQuery('${searchController.text}');
+                            makeQuery('${searchController.text}');
                           },
                         ),
                       ],
                     ),
-                Expanded(
-                  child: ListView(
-                    children: searchContainers,
-                  ),
-                ),
                   ],
                 ),
               ),
+              Expanded(
+                       child: ListView(
+                         children: searchContainers,
+                       ),
+                     ),
             ],
           ),
         ),
