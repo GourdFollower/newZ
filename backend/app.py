@@ -1,8 +1,12 @@
 from flask import Flask, request, jsonify
 import psycopg2
+import nltk
+from nltk.corpus import stopwords
+
 from init_db import *
 
 app = Flask(__name__)
+stop_words = set(stopwords.words('english'))
 
 
 @app.route('/', methods=['POST', 'GET'])
@@ -20,7 +24,7 @@ def receive_preferences():
     update_preferences(preferences)
     return jsonify({'message': 'Preferences received successfully'})
 
-# 
+# Fetch article from database to send to feed
 @app.route('/news', methods=['GET'])
 def get_news_articles():
     #article =  {"id": 1, "title": "Article 1"}
@@ -30,7 +34,8 @@ def get_news_articles():
 @app.route('/update_saved', methods=['POST'])
 def update_saved():
     data = request.get_json()
-    id = data.get('id')
+    article = data.get('article', [])
+    id = article.get('id')
     # Process preferences
     print('Received id: ', str(id))
     add_saved(id)
@@ -55,6 +60,9 @@ def update_language():
 def run_query():
     data = request.json
     query = data.get('query')
+    # Process query
+    filtered_words = [word for word in query.split() if word not in stop_words]
+    query = 'AND'.join(filtered_words)
     # query and return list of dictionaries
     r = query_articles(query, 100)
     return r

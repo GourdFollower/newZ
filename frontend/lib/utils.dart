@@ -2,9 +2,11 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'dart:developer';
 
+const baseUrl = 'http://127.0.0.1:5000/';
+
 void sendPreferences(Map<String, bool> preferences) async {
   log("send preferences", level: 0);
-  const url = 'http://127.0.0.1:5000/preferences';
+  const url = '${baseUrl}preferences';
   final response = await http.post(
     Uri.parse(url),
     body: jsonEncode({'preferences': preferences}),
@@ -23,18 +25,18 @@ void sendPreferences(Map<String, bool> preferences) async {
 // Fetch one article to be displayed in feed
 Future<Map<String, dynamic>> fetchNewsArticles() async {
   final response = await http.get(
-    Uri.parse('http://127.0.0.1:5000/news'),
+    Uri.parse('${baseUrl}news'),
   );
 
   if (response.statusCode == 200) {
-    final Map<String, dynamic> data =
-        json.decode(response.body);
+    final Map<String, dynamic> data = json.decode(response.body);
     return data;
   } else {
     // Handle errors
     throw Exception('Failed to load news articles');
   }
 }
+
 Future<Map<String, dynamic>> getNews() async {
   try {
     Map<String, dynamic> article = await fetchNewsArticles();
@@ -49,7 +51,7 @@ Future<Map<String, dynamic>> getNews() async {
 // Get all saved articles
 Future<List<Map<String, dynamic>>> fetchSavedArticles() async {
   final response = await http.get(
-    Uri.parse('http://127.0.0.1:5000/saved'),
+    Uri.parse('${baseUrl}saved'),
   );
 
   if (response.statusCode == 200) {
@@ -73,9 +75,44 @@ Future<List<Map<String, dynamic>>> getSaved() async {
   }
 }
 
+void saveArticle(Map<String, String> article) async {
+  log("add article to saved", level: 0);
+  const url = '${baseUrl}update_saved';
+  final response = await http.post(
+    Uri.parse(url),
+    body: jsonEncode({'article': article}),
+    headers: {'Content-Type': 'application/json'},
+  );
+
+  if (response.statusCode == 200) {
+    // Handle a successful response
+    log('Successfully saved article', level: 0);
+  } else {
+    // Handle errors
+    log('Failed to save article: ${response.statusCode}', level: 0);
+  }
+}
+
+void sendQuery(String query) async {
+  log("add article to saved", level: 0);
+  const url = '${baseUrl}query';
+  final response = await http.post(
+    Uri.parse(url),
+    body: jsonEncode({'query': query}),
+    headers: {'Content-Type': 'application/json'},
+  );
+  if (response.statusCode == 200) {
+    // Handle a successful response
+    log('Successfully sent query', level: 0);
+  } else {
+    // Handle errors
+    log('Failed to send query: ${response.statusCode}', level: 0);
+  }
+}
+
 void setLanguage(String language) async {
   log("set language", level: 0);
-  const url = 'http://127.0.0.1:5000/language';
+  const url = '${baseUrl}language';
   final response = await http.post(
     Uri.parse(url),
     body: jsonEncode({'language': language}),
