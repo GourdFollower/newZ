@@ -4,6 +4,7 @@ import nltk
 from nltk.corpus import stopwords
 
 nltk.download('stopwords')
+stop_words = stopwords.words('english')
 
 from init_db import *
 
