@@ -31,13 +31,13 @@ class _NavigationExampleState extends State<NavigationExample> {
   bool showSettings = false;
   String selectedLanguage = 'English';
   Map<String, bool> toggleStates = {
-    'Business': false,
-    'Entertainment': false,
-    'General': false,
-    'Health': false,
-    'Science': false,
-    'Sports': false,
-    'Technology': false,
+    'Business': true,
+    'Entertainment': true,
+    'General': true,
+    'Health': true,
+    'Science': true,
+    'Sports': true,
+    'Technology': true,
   };
   String source = '';
   String author = '';
@@ -63,6 +63,12 @@ class _NavigationExampleState extends State<NavigationExample> {
     controller = WebViewController();
   }
 
+  void _scrollDown() async {
+    final newData = await getNews();
+    _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+    print("scroll down");
+  }
+
   void updateNewsData() async {
     try {
       final newData = await getNews(); // Notice the 'await' keyword
@@ -75,7 +81,7 @@ class _NavigationExampleState extends State<NavigationExample> {
         media = newData['urltoimage'];
         date = newData['publishedat'];
         id = newData['id'];
-        updateContainer(title);
+        print(id);
       });
     } catch (e) {
       print('Failed to load news data: $e');
@@ -83,14 +89,8 @@ class _NavigationExampleState extends State<NavigationExample> {
     }
   }
 
-  void updateContainer(String newTitle) {
-    print("Updating title...");
-    setState(() {
-      title = newTitle;
-    });
-  }
-
   void onScroll() {
+    print("start");
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
       // User has reached the end of the scroll, add a new container
@@ -99,7 +99,6 @@ class _NavigationExampleState extends State<NavigationExample> {
         var newContainer =
             buildContainer(id, source, author, title, lead, url, media, date);
         containers.add(newContainer);
-        ids.add(id);
       });
     }
   }
@@ -107,20 +106,11 @@ class _NavigationExampleState extends State<NavigationExample> {
   Widget buildContainer(int buttonID, String source, String author, String title, String lead, String url, String media, String date) {
     // Call updateNewsData to fetch the news data
     updateNewsData();
-
-    // Get the full screen height
-    double screenHeight = MediaQuery.of(context).size.height;
-
-    // Calculate the total height of all other elements outside the ListView
-    double otherElementsHeight = MediaQuery.of(context).padding.top +
-        96.37263726372636 + // Logo size
-        24 + // Padding for container
-        MediaQuery.of(context).padding.bottom +
-        kBottomNavigationBarHeight; //
-    
-    // Calculate the dynamic height for the container
-    double containerHeight = screenHeight - otherElementsHeight;
-
+    double containerHeight = MediaQuery.of(context).size.height -
+        (MediaQuery.of(context).padding.top + // Adjust for top padding
+            kToolbarHeight + // Adjust for app bar height
+            kBottomNavigationBarHeight + // Adjust for bottom navigation bar height
+            kBottomNavigationBarHeight);
     return Container(
       height: containerHeight,
       child: Container(
@@ -199,7 +189,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                     ),
                   ],
                 ),
-                maxLines: 6, // Increased to 8 lines
+                maxLines: 4, // Increased to 8 lines
                 overflow: TextOverflow.ellipsis,
               ),
               const Spacer(), // Pushes the button to the bottom
@@ -272,7 +262,7 @@ class _NavigationExampleState extends State<NavigationExample> {
       String title, String lead, String url, String media, String date) {
     return Card(
       child: Container(
-        height: 250,
+        height: 255,
         child: Column(
           children: [
             // Top Half: Image
@@ -291,7 +281,7 @@ class _NavigationExampleState extends State<NavigationExample> {
             ),
             // Bottom Half: Title, Subtext, Read More Button
             Padding(
-              padding: EdgeInsets.all(8.0), // Adjust the padding as needed
+              padding: EdgeInsets.all(14.0), // Adjust the padding as needed
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -317,20 +307,44 @@ class _NavigationExampleState extends State<NavigationExample> {
                   SizedBox(height: 8), // Adjust the spacing as needed
                   Row(
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          readMore(url);
-                        },
-                        child: Text('Read More'),
+                  // Expanded Read More button
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        readMore(url);
+                      },
+                      child: Text(
+                        'Read More'.toUpperCase(),
+                        style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                            color: Color(
+                                0xFF48454F)), // Matches font size with lead, author, and date
                       ),
-                      Spacer(),
-                      ElevatedButton(
-                        onPressed: () {
-                          // remove functionality
-                        },
-                        child: Text('Remove from Saved'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            const Color(0xFFE1DBED), // Custom background color
+                        shape: const StadiumBorder(),
+                      ),
+                    ),
+                  ),
+                  // Spacer for separation
+                  const SizedBox(width: 14),
+                  // Icon buttons in a row
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: const Color(0xFFE1DBED),
+                        child: IconButton(
+                          icon: const Icon(Icons.chat_bubble_outline,
+                              color:
+                                  Color(0xFF48454F)), // More circular chat icon
+                          onPressed: () {
+                            // Add your chat event handler
+                          },
+                        ),
                       ),
                     ],
+                  ),
+                ],
                   ),
                 ],
               ),
@@ -369,9 +383,18 @@ class _NavigationExampleState extends State<NavigationExample> {
       bottomNavigationBar: NavigationBar(
         backgroundColor: const Color(0xFFE1DBED),
         onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
+          if (index==0){
+            // Refresh the app by pushing a new instance of the root widget
+            setState(() {
+              currentPageIndex = index;
+            });
+            _scrollDown();
+          }
+          else{
+            setState(() {
+              currentPageIndex = index;
+            });
+          }
         },
         indicatorColor: const Color(0xFFB4A6D5),
         selectedIndex: currentPageIndex,
@@ -420,44 +443,63 @@ class _NavigationExampleState extends State<NavigationExample> {
 
         /// Saved page
         Scaffold(
-          body: Padding(
-            padding: EdgeInsets.all(8.0),
-            child: ListView(
-              children: favoritesContainers,
-            ),
+          body: Column(
+            children: [
+              // Fixed header
+              const SafeArea(
+                child: SizedBox(height: 0), // Space above the logo
+              ),
+              Image.asset('assets/images/logo.jpg'),
+
+              // Scrollable content
+              Expanded(
+                child: ListView(
+                  children: favoritesContainers,
+                ),
+              ),
+            ],
           ),
         ),
 
         // Search page
         Scaffold(
-          body: Padding(
-            padding: const EdgeInsets.only(top: 50, left: 8, right: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Search bar and button
-                Row(
+          body: Column(
+            children: [
+              const SafeArea(
+              child: SizedBox(height: 0), // Space above the logo
+              ),
+              Image.asset('assets/images/logo.jpg'),
+              // Search bar and button
+              Padding(
+                padding: const EdgeInsets.only(top: 10, left: 20, right: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: TextField(
-                        decoration: InputDecoration(
-                          hintText: 'Search...',
+                  // Search bar and button
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              hintText: 'Search...',
+                            ),
+                            onChanged: (query) {
+                              // Handle search query changes
+                            },
+                          ),
                         ),
-                        onChanged: (query) {
-                          // Handle search query changes
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.search),
-                      onPressed: () {
-                        // Handle search action
-                      },
+                        IconButton(
+                          icon: Icon(Icons.search),
+                          onPressed: () {
+                            // Handle search action
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
 
@@ -471,6 +513,10 @@ class _NavigationExampleState extends State<NavigationExample> {
                 mainAxisSize: MainAxisSize.max,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
+                  const SafeArea(
+                    child: SizedBox(height: 0), // Space above the logo
+                  ),
+                  Image.asset('assets/images/logo.jpg'),
                   Padding(
                     padding:
                         const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
@@ -652,7 +698,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                                 0, 12, 0, 12),
                             child: Container(
                               width: double.infinity,
-                              height: 350,
+                              height: 250,
                               decoration: BoxDecoration(
                                 color: theme.colorScheme.background,
                                 borderRadius: BorderRadius.circular(12),
@@ -704,20 +750,20 @@ class _NavigationExampleState extends State<NavigationExample> {
   void _initializeContainers() {
     // Initial containers
     containers = [
-      buildContainer(0, "", "", "", "", "", "", ""),
-      buildContainer(0, "", "", "", "", "", "", ""),
-      buildContainer(0, "", "", "", "", "", "", ""),
+      buildContainer(397, "WION", "WION Web Team", "Mars vanishes in rare celestial event, will come back after 2 weeks - WION", "Mars vanishes in rare celestial event, will come back after 2 weeks", " https://www.wionews.com/science/mars-vanishes-in-rare-celestial-event-will-come-back-after-2-weeks-660104", "https://cdn.wionews.com/sites/default/files/2023/11/18/393892-untitled-design-84.png", "2023-11-18T11:01:03Z"),
+      // buildContainer(0, "", "", "", "", "", "", ""),
+      // buildContainer(0, "", "", "", "", "", "", ""),
     ];
     favoritesContainers = [
-      buildFavoritesContainer(
-          0,
-          "",
-          "",
-          "Test Title",
-          "",
-          "https://montreal.ctvnews.ca/content/dam/ctvnews/en/images/2022/9/14/high-school-1-6068707-1663193049618.jpg",
-          "https://montreal.ctvnews.ca/content/dam/ctvnews/en/images/2022/9/14/high-school-1-6068707-1663193049618.jpg",
-          "")
+      // buildFavoritesContainer(
+      //     0,
+      //     "",
+      //     "",
+      //     "Test Title",
+      //     "",
+      //     "https://montreal.ctvnews.ca/content/dam/ctvnews/en/images/2022/9/14/high-school-1-6068707-1663193049618.jpg",
+      //     "https://montreal.ctvnews.ca/content/dam/ctvnews/en/images/2022/9/14/high-school-1-6068707-1663193049618.jpg",
+      //     "")
     ];
   }
 
@@ -803,15 +849,17 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   void addToFavorites(int id, String source, String author, String title,
       String lead, String url, String media, String date) {
-    //print("id");
-    //print(id);
-    setState(() {
-      favoritesContainers = List.from(favoritesContainers);
-      var newContainer = buildFavoritesContainer(
-          id, source, author, title, lead, url, media, date);
-      favoritesContainers.add(newContainer);
-      ids.add(id);
-    });
+    print(ids);
+    print(ids.indexOf(id));
+    if(ids.indexOf(id)==-1) {
+      setState(() {
+        favoritesContainers = List.from(favoritesContainers);
+        var newContainer = buildFavoritesContainer(
+            id, source, author, title, lead, url, media, date);
+        favoritesContainers.add(newContainer);
+        ids.add(id);
+      });
+    }
   }
 
   void readMore(String url) {
