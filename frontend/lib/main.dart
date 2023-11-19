@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import './utils.dart';
-
+import 'dart:io' show Platform;
 import 'package:webview_flutter/webview_flutter.dart';
 
 void main() => runApp(const NavigationBarApp());
@@ -16,6 +16,22 @@ class NavigationBarApp extends StatelessWidget {
       home: const NavigationExample(),
     );
   }
+}
+
+// Custom Scroll Physics Class
+class CustomScrollPhysics extends ScrollPhysics {
+  const CustomScrollPhysics({ScrollPhysics? parent}) : super(parent: parent);
+
+  @override
+  CustomScrollPhysics applyTo(ScrollPhysics? ancestor) {
+    return CustomScrollPhysics(parent: buildParent(ancestor));
+  }
+
+  @override
+  double get minFlingVelocity => 1;  // Adjust as needed
+
+  @override
+  double get minFlingDistance => 0.01;  // Adjust as needed
 }
 
 class NavigationExample extends StatefulWidget {
@@ -106,11 +122,30 @@ class _NavigationExampleState extends State<NavigationExample> {
   Widget buildContainer(int buttonID, String source, String author, String title, String lead, String url, String media, String date) {
     // Call updateNewsData to fetch the news data
     updateNewsData();
-    double containerHeight = MediaQuery.of(context).size.height -
-        (MediaQuery.of(context).padding.top + // Adjust for top padding
-            kToolbarHeight + // Adjust for app bar height
-            kBottomNavigationBarHeight + // Adjust for bottom navigation bar height
-            kBottomNavigationBarHeight);
+
+    // Get the full screen height
+    double screenHeight = MediaQuery.of(context).size.height;
+    
+    // Initialize otherElementsHeight
+    double otherElementsHeight = 0.0;
+
+    // Calculate the total height of all other elements outside the ListView
+    if (Platform.isIOS) {
+      otherElementsHeight = MediaQuery.of(context).padding.top +
+          96.37263726372636 + // Logo size
+          24 + // Padding for container
+          MediaQuery.of(context).padding.bottom +
+          kBottomNavigationBarHeight; // Navigation bar height for iOS
+    } else if (Platform.isAndroid) {
+      otherElementsHeight = MediaQuery.of(context).padding.top +
+          kToolbarHeight + // Toolbar height for Android
+          kBottomNavigationBarHeight + // Navigation bar height for Android
+          24; // Padding for container
+    }
+    
+    // Calculate the dynamic height for the container
+    double containerHeight = screenHeight - otherElementsHeight;
+
     return Container(
       height: containerHeight,
       child: Container(
@@ -189,7 +224,7 @@ class _NavigationExampleState extends State<NavigationExample> {
                     ),
                   ],
                 ),
-                maxLines: 4, // Increased to 8 lines
+                maxLines: Platform.isIOS ? 6 : 4, // 6 lines for iOS and 4 for Android
                 overflow: TextOverflow.ellipsis,
               ),
               const Spacer(), // Pushes the button to the bottom
