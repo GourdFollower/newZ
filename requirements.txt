@@ -17,3 +17,4 @@ zipp==3.17.0
 psycopg2==2.9.9
 requests==2.31.0
 newsapi==0.1.1
+newsapi-python==0.2.7
