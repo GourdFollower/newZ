@@ -109,8 +109,8 @@ def obtain_news(cat, lang, size, start_id):
     return new_id
 
 
-def return_json(id, cur):
-    query_sql = "SELECT * FROM news where id = %s"
+def return_json(id, cur, db):
+    query_sql = "SELECT * FROM {0} where id = %s".format(db)
     cur.execute(query_sql, (id,))
     r = [dict((cur.description[i][0], value) \
                for i, value in enumerate(row)) for row in cur.fetchall()]
@@ -135,7 +135,7 @@ def return_article():
             id = cur.fetchone()[0]
             searching = False
 
-    r = return_json(id, cur)
+    r = return_json(id, cur, 'news')
     sql = "UPDATE news SET read = true WHERE id = %s;"
     cur.execute(sql, (id,))
 
@@ -156,7 +156,7 @@ def get_saved():
 
     list_saved = []
     for i in saved:
-        j = return_json(i, cur)
+        j = return_json(i, cur, 'news')
         list_saved.append(j)
 
     conn.commit()
@@ -183,13 +183,69 @@ def query_articles(query, size):
     conn = psycopg2.connect("dbname=newz user=postgres")
     cur = conn.cursor()
 
+    sql = "CREATE TABLE temp (id serial PRIMARY KEY, source text, author text, \
+        title text, description text, url text, urlToImage text, publishedAt text, \
+            content text);"
+    cur.execute(sql)
+    conn.commit()
+
     newsapi = NewsApiClient(api_key=NEWS_API_KEY)
 
     top_headlines = newsapi.get_everything(q = query, language=LANGUAGE, page_size=size, sort_by='relevancy')
     articles = top_headlines['articles']
 
-    print(articles[0])
-    return articles
+    count = 0
+    for article in articles:
+        count += 1
+
+        for key in article:
+            if article[key] is None:
+                continue
+
+            column = key
+            data = article[key]
+
+            if key == 'source':
+                if article[key]['name'] is None:
+                    continue
+                else:
+                    data = article[key]['name']
+            if key == 'date':
+                date = article['publishedAt'].split('T', 1)[0]
+                data = date
+
+            cur.execute("SELECT id FROM temp WHERE id = %s", (count,))
+            if cur.fetchone() is not None:
+                sql = "UPDATE temp SET {0} = %s WHERE id = %s;".format(column)
+                cur.execute(sql, (data, count))
+            else:
+                sql = "INSERT INTO temp ({0}) VALUES (%s)".format(column)
+                cur.execute(sql, (data,))
+    
+    sql = "DELETE FROM temp WHERE author IS null OR title is null OR description is null \
+        OR url is null OR urlToImage is null OR publishedAt is null"
+    cur.execute(sql)
+    conn.commit()
+
+    sql = "DELETE FROM temp WHERE length(author) > 20 OR length(source) > 20 OR \
+      not(author ILIKE '% %') OR length(description) < 50;"
+    cur.execute(sql)
+    conn.commit()
+
+    list_saved = []
+    cur.execute("SELECT id from temp;")
+    for i in cur.fetchall():
+        j = return_json(i, cur, 'temp')
+        if j is not None:
+            list_saved.append(j)
+
+    sql = "DROP TABLE temp;"
+    cur.execute(sql)
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    return list_saved
 
 def change_language():
     pass
