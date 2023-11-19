@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 import psycopg2
-#from init_db import update_preferences
+from init_db import *
 
 app = Flask(__name__)
 
@@ -45,16 +45,11 @@ def update_language():
     data = request.json
     selected_language = data.get('language')
     # Process the selected language as needed
-    
+
     print(f"Received selected language: {selected_language}")
     return jsonify({'message': 'Language updated successfully'})
 
-def update_preferences(preferences_dict):
-    sql = "UPDATE news SET {0} = %s WHERE id = 1;".format("blah")
-    print("preferences updated in database: ", str(preferences_dict))
-    #cur.execute(sql, (article[key], count))
-
-
 
 if __name__ == '__main__':
+    init_db()
     app.run(debug=True)
