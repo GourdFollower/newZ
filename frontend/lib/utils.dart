@@ -20,15 +20,34 @@ void sendPreferences(Map<String, bool> preferences) async {
   }
 }
 
-// Future<List<Map<String, dynamic>>> fetchNewsArticles2() async {
+Future<Map<String, dynamic>> fetchNewsArticles() async {
+  final response = await http.get(
+    Uri.parse('http://127.0.0.1:5000/news'),
+  );
+
+  if (response.statusCode == 200) {
+    final Map<String, dynamic> data =
+        json.decode(response.body)['news_article'];
+    return data;
+  } else {
+    // Handle errors
+    throw Exception('Failed to load news articles');
+  }
+}
+
+// Take multiple articles as input
+
+// Future<List<Map<String, dynamic>>> fetchNewsArticles() async {
 //   final response = await http.get(
 //     Uri.parse('http://127.0.0.1:5000/news'),
 //   );
 
 //   if (response.statusCode == 200) {
-//     final List<dynamic> data = json.decode(response.body)['news_articles'];
+//     final List<dynamic> data =
+//         json.decode(response.body)['news_articles'];
 //     final List<Map<String, dynamic>> articles =
 //         List<Map<String, dynamic>>.from(data.map((item) => item as Map<String, dynamic>));
+//     //final List<Map<String, dynamic>> articles = data['news_articles'];
 //     return articles;
 //   } else {
 //     // Handle errors
@@ -36,27 +55,9 @@ void sendPreferences(Map<String, bool> preferences) async {
 //   }
 // }
 
-Future<List<Map<String, dynamic>>> fetchNewsArticles() async {
-  final response = await http.get(
-    Uri.parse('http://127.0.0.1:5000/news'),
-  );
-
-  if (response.statusCode == 200) {
-    final List<dynamic> data =
-        json.decode(response.body)['news_articles'];
-    final List<Map<String, dynamic>> articles =
-        List<Map<String, dynamic>>.from(data.map((item) => item as Map<String, dynamic>));
-    //final List<Map<String, dynamic>> articles = data['news_articles'];
-    return articles;
-  } else {
-    // Handle errors
-    throw Exception('Failed to load news articles');
-  }
-}
-
 void getNews() async {
   try {
-    List<Map<String, dynamic>> articles = await fetchNewsArticles();
+    Map<String, dynamic> articles = await fetchNewsArticles();
     print('News Articles:');
     print(articles);
   } catch (e) {

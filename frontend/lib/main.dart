@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './utils.dart';
 
 void main() => runApp(const NavigationBarApp());
 
@@ -113,7 +114,8 @@ class _NavigationExampleState extends State<NavigationExample> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                    padding:
+                        const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
                     child: Container(
                       width: 120,
                       height: 120,
@@ -122,7 +124,8 @@ class _NavigationExampleState extends State<NavigationExample> {
                         shape: BoxShape.circle,
                       ),
                       child: ClipOval(
-                        child: Center( // Center the image within the ClipOval
+                        child: Center(
+                          // Center the image within the ClipOval
                           child: Image.asset(
                             'assets/images/bread_sheeran.jpg',
                             fit: BoxFit.contain,
@@ -138,10 +141,11 @@ class _NavigationExampleState extends State<NavigationExample> {
                       style: theme.textTheme.headlineMedium,
                     ),
                   ),
-                  
+
                   // Settings
                   Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
+                    padding:
+                        const EdgeInsetsDirectional.fromSTEB(16, 16, 16, 16),
                     child: Column(
                       mainAxisSize: MainAxisSize.max,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,7 +186,8 @@ class _NavigationExampleState extends State<NavigationExample> {
                         Visibility(
                           visible: showSettings,
                           child: Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
+                            padding: const EdgeInsetsDirectional.fromSTEB(
+                                0, 12, 0, 12),
                             child: Container(
                               width: double.infinity,
                               height: 150,
@@ -191,7 +196,8 @@ class _NavigationExampleState extends State<NavigationExample> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 12, 12),
+                                padding: const EdgeInsetsDirectional.fromSTEB(
+                                    12, 12, 12, 12),
                                 child: Column(
                                   children: [
                                     // Language Dropdown
@@ -208,7 +214,8 @@ class _NavigationExampleState extends State<NavigationExample> {
                                               selectedLanguage = newValue!;
                                             });
                                           },
-                                          items: <String>['English', 'French'].map((String value) {
+                                          items: <String>['English', 'French']
+                                              .map((String value) {
                                             return DropdownMenuItem<String>(
                                               value: value,
                                               child: Text(value),
@@ -221,7 +228,8 @@ class _NavigationExampleState extends State<NavigationExample> {
                                     Visibility(
                                       visible: showSettings,
                                       child: Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 12.0),
                                         child: ElevatedButton(
                                           onPressed: () {
                                             saveSettings();
@@ -282,7 +290,8 @@ class _NavigationExampleState extends State<NavigationExample> {
                         Visibility(
                           visible: showPreferences,
                           child: Padding(
-                            padding: const EdgeInsetsDirectional.fromSTEB(0, 12, 0, 12),
+                            padding: const EdgeInsetsDirectional.fromSTEB(
+                                0, 12, 0, 12),
                             child: Container(
                               width: double.infinity,
                               height: 350,
@@ -291,7 +300,8 @@ class _NavigationExampleState extends State<NavigationExample> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Padding(
-                                padding: const EdgeInsetsDirectional.fromSTEB(12, 12, 12, 12),
+                                padding: const EdgeInsetsDirectional.fromSTEB(
+                                    12, 12, 12, 12),
                                 child: ListView(
                                   children: [
                                     buildToggleTile('Business', theme),
@@ -305,7 +315,8 @@ class _NavigationExampleState extends State<NavigationExample> {
                                     Visibility(
                                       visible: showPreferences,
                                       child: Padding(
-                                        padding: const EdgeInsets.symmetric(vertical: 12.0),
+                                        padding: const EdgeInsets.symmetric(
+                                            vertical: 12.0),
                                         child: ElevatedButton(
                                           onPressed: () {
                                             savePreferences();
@@ -349,9 +360,13 @@ class _NavigationExampleState extends State<NavigationExample> {
 
   // Function to save preferences
   void savePreferences() {
-    // Implement the logic to send toggleStates to your desired function or API
-    // For example, you can print the states for now
+    // update preferences in backend
     print('Saving Preferences: $toggleStates');
+    Map<String, bool> preferences = {};
+    toggleStates.forEach((key, value) {
+      preferences[key] = value;
+    });
+    sendPreferences(preferences);
   }
 
   void saveSettings() {

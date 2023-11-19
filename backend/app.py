@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 import psycopg2
+#from init_db import update_preferences
 
 app = Flask(__name__)
 
@@ -30,18 +31,19 @@ def receive_preferences():
     preferences = data.get('preferences', [])
     # Process preferences
     print('Received preferences:', preferences)
-    #set_preferences(preferences)
+    update_preferences(preferences)
     return jsonify({'message': 'Preferences received successfully'})
 
 @app.route('/news', methods=['GET'])
 def get_news_articles():
-    articles =  [
-        {"id": 1, "title": "Article 1"},
-        {"id": 2, "title": "Article 2"},
-        {"id": 3, "title": "Article 3"},
-    ]
+    article =  {"id": 1, "title": "Article 1"}
     # articles = fetch_news_articles()
-    return jsonify({'news_articles': articles})
+    return jsonify(article)
+
+def update_preferences(preferences_dict):
+    sql = "UPDATE news SET {0} = %s WHERE id = 1;".format("blah")
+    print("preferences updated in database: ", str(preferences_dict))
+    #cur.execute(sql, (article[key], count))
 
 if __name__ == '__main__':
     app.run(debug=True)
