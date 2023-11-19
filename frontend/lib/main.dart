@@ -96,22 +96,27 @@ void onScroll() {
   }
 
   Widget buildContainer() {
-   updateNewsData(); 
-   print("title:");
-   print(title);
-   double containerHeight = MediaQuery.of(context).size.height -
-       (MediaQuery.of(context).padding.top + // Adjust for top padding
-           kToolbarHeight + // Adjust for app bar height
-           kBottomNavigationBarHeight + // Adjust for bottom navigation bar height
-           56);
-           //HARD CODED VALUE!!! idk where 57 comes from but it works
+    // Call updateNewsData to fetch the news data
+    updateNewsData();
 
-  return Container(
-    height: containerHeight,
-    child: Container(
+    // Get the full screen height
+    double screenHeight = MediaQuery.of(context).size.height;
+
+    // Calculate the total height of all other elements outside the ListView
+    double otherElementsHeight = MediaQuery.of(context).padding.top +
+        MediaQuery.of(context).padding.bottom +
+        kBottomNavigationBarHeight +
+        AppBar().preferredSize.height
+        + 94; // HARD CODED!!!
+
+    // Calculate the dynamic height for the container
+    double dynamicHeight = screenHeight - otherElementsHeight;
+
+    return Container(
+      height: dynamicHeight, // Use the calculated dynamic height
       margin: const EdgeInsets.all(15.0),
       decoration: BoxDecoration(
-        color: const Color(0xFFF3F3F3),
+        color: const Color(0xFFF9F2FD),
         borderRadius: BorderRadius.circular(15),
         border: Border.all(
           color: const Color(0xFF6D3C90),
@@ -120,28 +125,122 @@ void onScroll() {
       child: Padding(
         padding: const EdgeInsets.all(15.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch, // Ensures the container stretches to fill the width
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Title
             Text(
               title.isNotEmpty ? title : "Loading...",
-              style: ThemeData(useMaterial3: true).textTheme.titleLarge?.copyWith(color: Colors.black),
-              maxLines: 2,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+              ),
+              maxLines: 3,
               overflow: TextOverflow.ellipsis,
             ),
-            ElevatedButton(
-              onPressed: () {
-                readMore();
-              },
-              child: const Text('Read More'),
+            const SizedBox(height: 8), // Reduced spacing
+
+            // Source and Author
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  source.isNotEmpty ? source : "",
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+                Text(
+                  author.isNotEmpty ? "By $author" : "",
+                  style: Theme.of(context).textTheme.bodyLarge,
+                ),
+              ],
             ),
-            // ... Rest of your widget code ...
+            const SizedBox(height: 8), // Reduced spacing
+
+            // Media Image
+            if (media.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Image.network(
+                    media,
+                    fit: BoxFit.cover,
+                    height: 225, // Adjust the height as needed
+                  ),
+                ),
+              ),
+            const SizedBox(height: 12), // Reduced spacing
+
+            // Date in Bold and Lead Text
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: date.isNotEmpty ? parseDate(date) + ' - ' : "",
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  TextSpan(
+                    text: lead.isNotEmpty ? lead : "",
+                    style: Theme.of(context).textTheme.bodyLarge, // Uses bodyLarge for consistency
+                  ),
+                ],
+              ),
+              maxLines: 6, // Increased to 8 lines
+              overflow: TextOverflow.ellipsis,
+            ),
+            const Spacer(), // Pushes the button to the bottom
+
+            // Bottom Row with Read More button and Bookmark and Chat buttons
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween, // Aligns items to opposite ends
+              children: [
+                // Expanded Read More button
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () {
+                      readMore('url');
+                    },
+                    child: Text(
+                      'Read More'.toUpperCase(),
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Color(0xFF48454F)), // Matches font size with lead, author, and date
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFE1DBED), // Custom background color
+                      shape: const StadiumBorder(),
+                    ),
+                  ),
+                ),
+                // Spacer for separation
+                const SizedBox(width: 14),
+                // Icon buttons in a row
+                Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: const Color(0xFFE1DBED),
+                      child: IconButton(
+                        icon: const Icon(Icons.bookmark_border, color: Color(0xFF48454F)), // Unfilled bookmark icon
+                        onPressed: () {
+                          addToFavorites(...);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 14), // Spacing between icons
+                    CircleAvatar(
+                      backgroundColor: const Color(0xFFE1DBED),
+                      child: IconButton(
+                        icon: const Icon(Icons.chat_bubble_outline, color: Color(0xFF48454F)), // More circular chat icon
+                        onPressed: () {
+                          // Add your chat event handler
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ],
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -151,12 +250,21 @@ void onScroll() {
       containersInitialized = true;
     }
     final ThemeData theme = Theme.of(context);
+    final double statusBarHeight = MediaQuery.of(context).padding.top;
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(0),
         child: AppBar(
           backgroundColor: const Color(0xFFE1DBED),
-          elevation: 0, // Removes shadow
+          elevation: 0, // No shadow
+          flexibleSpace: Column(
+            children: [
+              Container(
+                height: statusBarHeight, // Status bar height
+                color: const Color(0xFFE1DBED),
+              ),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: NavigationBar(
@@ -195,7 +303,7 @@ void onScroll() {
           body: Column(
             children: [
               // Fixed header
-              SafeArea(
+              const SafeArea(
                 child: SizedBox(height: 0), // Space above the logo
               ),
               Image.asset('assets/images/logo.jpg'),
@@ -707,9 +815,50 @@ void onScroll() {
     setLanguage(lang);
   }
 
-  void readMore() {
-    // Implement the logic to send toggleStates to your desired function or API
-    // For example, you can print the states for now
-    print('read more');
+  String parseDate(String date) {
+  DateTime parsedDate = DateTime.parse(date);
+  String month = '';
+  switch (parsedDate.month) {
+    case 1:
+      month = 'Jan';
+      break;
+    case 2:
+      month = 'Feb';
+      break;
+    case 3:
+      month = 'Mar';
+      break;
+    case 4:
+      month = 'Apr';
+      break;
+    case 5:
+      month = 'May';
+      break;
+    case 6:
+      month = 'Jun';
+      break;
+    case 7:
+      month = 'Jul';
+      break;
+    case 8:
+      month = 'Aug';
+      break;
+    case 9:
+      month = 'Sep';
+      break;
+    case 10:
+      month = 'Oct';
+      break;
+    case 11:
+      month = 'Nov';
+      break;
+    case 12:
+      month = 'Dec';
+      break;
   }
+  String day = parsedDate.day.toString();
+  String year = parsedDate.year.toString();
+  return month != 'May' ? "$month. $day, $year" : "$month $day, $year";
+}
+
 }
