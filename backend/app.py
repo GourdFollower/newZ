@@ -34,11 +34,20 @@ def receive_preferences():
     update_preferences(preferences)
     return jsonify({'message': 'Preferences received successfully'})
 
+# 
 @app.route('/news', methods=['GET'])
 def get_news_articles():
-    article =  {"id": 1, "title": "Article 1"}
-    # articles = fetch_news_articles()
-    return jsonify(article)
+    #article =  {"id": 1, "title": "Article 1"}
+    article = return_article()
+    return article
+
+@app.route('/saved', methods=['GET'])
+def get_saved_articles():
+    articles =  [{"id": 1, "title": "Article 1"},
+                 {"id": 2, "title": "Article 2"},
+                 {"id": 3, "title": "Article 3"}]
+    #article = return_article()
+    return articles
 
 @app.route('/language', methods=['POST'])
 def update_language():

@@ -20,6 +20,7 @@ void sendPreferences(Map<String, bool> preferences) async {
   }
 }
 
+// Fetch one article to be displayed in feed
 Future<Map<String, dynamic>> fetchNewsArticles() async {
   final response = await http.get(
     Uri.parse('http://127.0.0.1:5000/news'),
@@ -34,34 +35,41 @@ Future<Map<String, dynamic>> fetchNewsArticles() async {
     throw Exception('Failed to load news articles');
   }
 }
-
-// Take multiple articles as input
-
-// Future<List<Map<String, dynamic>>> fetchNewsArticles() async {
-//   final response = await http.get(
-//     Uri.parse('http://127.0.0.1:5000/news'),
-//   );
-
-//   if (response.statusCode == 200) {
-//     final List<dynamic> data =
-//         json.decode(response.body)['news_articles'];
-//     final List<Map<String, dynamic>> articles =
-//         List<Map<String, dynamic>>.from(data.map((item) => item as Map<String, dynamic>));
-//     //final List<Map<String, dynamic>> articles = data['news_articles'];
-//     return articles;
-//   } else {
-//     // Handle errors
-//     throw Exception('Failed to load news articles');
-//   }
-// }
-
-void getNews() async {
+Future<Map<String, dynamic>> getNews() async {
   try {
-    Map<String, dynamic> articles = await fetchNewsArticles();
+    Map<String, dynamic> article = await fetchNewsArticles();
     print('News Articles:');
-    print(articles);
+    print(article);
+    return article;
   } catch (e) {
-    print('Error fetching news articles: $e');
+    throw Exception('Error fetching news articles: $e');
+  }
+}
+
+// Get all saved articles
+Future<List<Map<String, dynamic>>> fetchSavedArticles() async {
+  final response = await http.get(
+    Uri.parse('http://127.0.0.1:5000/saved'),
+  );
+
+  if (response.statusCode == 200) {
+    final List<dynamic> data = json.decode(response.body)['saved_articles'];
+    final List<Map<String, dynamic>> articles = List<Map<String, dynamic>>.from(
+        data.map((item) => item as Map<String, dynamic>));
+    return articles;
+  } else {
+    // Handle errors
+    throw Exception('Failed to load saved articles');
+  }
+}
+Future<List<Map<String, dynamic>>> getSaved() async {
+  try {
+    List<Map<String, dynamic>> articles = await fetchSavedArticles();
+    print('Saved Articles:');
+    print(articles);
+    return articles;
+  } catch (e) {
+    throw Exception('Error fetching saved articles: $e');
   }
 }
 
@@ -90,6 +98,6 @@ void main() {
     'technology': false,
     'sports': false
   };
-  sendPreferences(selectedPreferences);
-  getNews();
+  //sendPreferences(selectedPreferences);
+  //news = getNews();
 }
